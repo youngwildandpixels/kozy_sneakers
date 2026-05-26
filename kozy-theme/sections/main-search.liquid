@@ -1,0 +1,204 @@
+{%- comment -%} Main Search — formulaire + résultats produits {%- endcomment -%}
+{%- liquid
+  assign paginate_limit = section.settings.results_per_page | default: 24
+-%}
+
+<section class="search-page">
+  <div class="search-page__head container">
+    <h1 class="search-page__title">Recherche</h1>
+
+    <form action="{{ routes.search_url }}" method="get" role="search" class="search-page__form">
+      <label for="SearchInput" class="visually-hidden">Rechercher</label>
+      <input
+        type="search"
+        id="SearchInput"
+        name="q"
+        value="{{ search.terms | escape }}"
+        placeholder="Rechercher des sneakers, marques…"
+        autocomplete="off"
+      >
+      <input type="hidden" name="type" value="product">
+      <button type="submit">Rechercher</button>
+    </form>
+
+    {%- if search.performed -%}
+      <p class="search-page__count">
+        {%- if search.results_count == 0 -%}
+          Aucun résultat pour "{{ search.terms | escape }}"
+        {%- elsif search.results_count == 1 -%}
+          1 résultat pour "{{ search.terms | escape }}"
+        {%- else -%}
+          {{ search.results_count }} résultats pour "{{ search.terms | escape }}"
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+  </div>
+
+  {%- if search.performed and search.results_count > 0 -%}
+    {%- paginate search.results by paginate_limit -%}
+      <div class="search-page__grid container">
+        {%- for product in search.results -%}
+          <div class="search-page__cell">
+            {%- render 'product-card', product: product, show_vendor: true, lazy: 'lazy' -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="search-page__pagination container" aria-label="Pagination">
+          {%- if paginate.previous -%}
+            <a href="{{ paginate.previous.url }}" class="search-page__page-link">‹</a>
+          {%- endif -%}
+
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a href="{{ part.url }}" class="search-page__page-link">{{ part.title }}</a>
+            {%- elsif part.title == paginate.current_page -%}
+              <span class="search-page__page-link search-page__page-link--active">{{ part.title }}</span>
+            {%- else -%}
+              <span class="search-page__page-link search-page__page-link--disabled">{{ part.title }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if paginate.next -%}
+            <a href="{{ paginate.next.url }}" class="search-page__page-link">›</a>
+          {%- endif -%}
+        </nav>
+      {%- endif -%}
+    {%- endpaginate -%}
+  {%- endif -%}
+</section>
+
+{% stylesheet %}
+.search-page {
+  padding: var(--space-10) 0 var(--space-12);
+}
+
+.search-page__head {
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+.search-page__title {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.0;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-5);
+}
+
+.search-page__form {
+  display: flex;
+  gap: 0;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.search-page__form input[type="search"] {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-gray-200);
+  border-right: none;
+  border-radius: 0;
+  font-size: var(--font-size-body);
+  font-family: var(--font-primary);
+}
+
+.search-page__form input[type="search"]:focus {
+  outline: none;
+  border-color: var(--color-black);
+}
+
+.search-page__form button {
+  background: var(--color-black);
+  color: var(--color-white);
+  border: 1px solid var(--color-black);
+  padding: var(--space-3) var(--space-6);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.search-page__count {
+  font-size: var(--font-size-small);
+  color: var(--color-gray-500);
+  margin-top: var(--space-4);
+}
+
+.search-page__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--color-gray-200);
+}
+
+.search-page__cell {
+  background: var(--color-white);
+  min-width: 0;
+}
+
+.search-page__pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-10);
+}
+
+.search-page__page-link {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-black);
+  padding: var(--space-2) var(--space-3);
+  min-width: 32px;
+  text-align: center;
+}
+
+.search-page__page-link--active {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+.search-page__page-link--disabled { color: var(--color-gray-300); }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+@media (max-width: 1024px) {
+  .search-page__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .search-page__title { font-size: 32px; letter-spacing: -0.5px; }
+  .search-page__grid  { grid-template-columns: repeat(2, 1fr); }
+}
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Recherche",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "results_per_page",
+      "label": "Résultats par page",
+      "min": 12,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    }
+  ]
+}
+{% endschema %}

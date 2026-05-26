@@ -1,0 +1,139 @@
+/* ── The Last Step — Overrides Dawn pour appliquer le design system ── */
+
+/* Font globale : Barlow partout */
+body,
+.text-body,
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4,
+button, input, select, textarea,
+.btn {
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Écrasement des variables font Dawn → Barlow */
+:root {
+  --font-body-family: var(--font-primary);
+  --font-heading-family: var(--font-primary);
+}
+
+/* Typographie globale */
+body {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-black);
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-black);
+  line-height: 1.0;
+  letter-spacing: -1px;
+}
+
+h2 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1.05;
+}
+
+h3 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ── Boutons — border-radius: 0 strict ── */
+.button,
+.btn,
+button:not(.shopify-payment-button__button),
+[type="button"],
+[type="submit"],
+.quantity__button {
+  border-radius: 0 !important; /* override Dawn qui applique --buttons-radius */
+  font-family: var(--font-primary);
+}
+
+/* Bouton primaire */
+.button--primary,
+.button:not(.button--secondary):not(.button--tertiary) {
+  background: var(--color-black);
+  color: var(--color-white);
+  border: 1.5px solid var(--color-black);
+  font-weight: var(--font-weight-medium);
+}
+.button--primary:hover,
+.button:not(.button--secondary):not(.button--tertiary):hover {
+  opacity: 0.8;
+}
+
+/* Bouton secondaire */
+.button--secondary {
+  background: var(--color-white);
+  color: var(--color-black);
+  border: 1.5px solid var(--color-black);
+  font-weight: var(--font-weight-medium);
+}
+.button--secondary:hover {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+/* ── Liens — hover opacity ── */
+a:hover {
+  opacity: 0.6;
+  text-decoration: none;
+}
+
+/* ── Cards produit — grille 1px separator ── */
+.product-grid,
+.grid.product-grid {
+  gap: 1px;
+  background-color: var(--color-gray-200);
+}
+
+.card-wrapper,
+.product-card-wrapper {
+  background: var(--color-white);
+}
+
+/* Image produit — fond gris + contain */
+.card__media,
+.card .media {
+  background-color: var(--color-gray-100);
+  aspect-ratio: 11 / 10;
+}
+
+.card__media img,
+.card .media img {
+  object-fit: contain;
+  padding: var(--space-4);
+  transition: transform 0.3s ease;
+}
+
+.card-wrapper:hover .card__media img,
+.card-wrapper:hover .card .media img {
+  transform: scale(1.04);
+}
+
+/* ── Badge PROMO ── */
+.badge,
+.card__badge .badge {
+  border-radius: 0;
+  font-family: var(--font-primary);
+  font-size: var(--font-size-badge);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* ── Inputs — border-radius: 0 ── */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+  border-radius: 0 !important;
+  font-family: var(--font-primary);
+}

@@ -1,0 +1,258 @@
+{%- comment -%} Hero Slideshow — fullwidth, image + CTA avec positionnement libre {%- endcomment -%}
+
+<section class="hero">
+  <div class="hero__track">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign v = block.settings.vertical_position
+        assign h = block.settings.horizontal_align
+        assign content_class = 'hero__content hero__content--v-' | append: v | append: ' hero__content--h-' | append: h
+      -%}
+      <div class="hero__slide{% if forloop.first %} hero__slide--active{% endif %}" {{ block.shopify_attributes }}>
+        {%- if block.settings.image != blank -%}
+          <img
+            src="{{ block.settings.image | image_url: width: 1920 }}"
+            srcset="{{ block.settings.image | image_url: width: 768 }} 768w, {{ block.settings.image | image_url: width: 1440 }} 1440w, {{ block.settings.image | image_url: width: 1920 }} 1920w"
+            sizes="100vw"
+            alt="{{ block.settings.image.alt | escape }}"
+            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+            width="1920"
+            height="1080"
+            class="hero__img"
+          >
+        {%- else -%}
+          {{ 'lifestyle-2' | placeholder_svg_tag: 'hero__img hero__img--placeholder' }}
+        {%- endif -%}
+
+        <div class="hero__overlay" style="opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};"></div>
+
+        <div class="{{ content_class }}">
+          <div class="hero__text-block">
+            {%- if block.settings.label != blank -%}
+              <p class="hero__label">{{ block.settings.label }}</p>
+            {%- endif -%}
+            {%- if block.settings.title != blank -%}
+              <h2 class="hero__title">{{ block.settings.title }}</h2>
+            {%- endif -%}
+            {%- if block.settings.cta_label != blank -%}
+              <div class="hero__cta-wrap">
+                <a href="{{ block.settings.cta_link | default: routes.all_products_collection_url }}" class="hero__cta">
+                  {{ block.settings.cta_label }}
+                </a>
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+
+  {%- if section.blocks.size > 1 -%}
+    <div class="hero__dots" aria-label="Navigation slides">
+      {%- for block in section.blocks -%}
+        <button class="hero__dot{% if forloop.first %} hero__dot--active{% endif %}" data-index="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"></button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</section>
+
+{% stylesheet %}
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 80vh;
+  overflow: hidden;
+  background: var(--color-gray-100);
+}
+
+.hero__track { width: 100%; height: 100%; }
+
+.hero__slide {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+.hero__slide--active { display: block; }
+
+.hero__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.hero__img--placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-gray-100);
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  pointer-events: none;
+}
+
+/* Conteneur de positionnement — grille 3×3 */
+.hero__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  padding: 60px;
+}
+
+/* Vertical */
+.hero__content--v-top    { align-items: flex-start; }
+.hero__content--v-center { align-items: center; }
+.hero__content--v-bottom { align-items: flex-end; }
+
+/* Horizontal */
+.hero__content--h-left   { justify-content: flex-start; }
+.hero__content--h-center { justify-content: center; }
+.hero__content--h-right  { justify-content: flex-end; }
+
+/* Bloc texte — adapte son alignement selon la position horizontale */
+.hero__text-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 640px;
+}
+
+.hero__content--h-left   .hero__text-block { align-items: flex-start; text-align: left; }
+.hero__content--h-center .hero__text-block { align-items: center;     text-align: center; }
+.hero__content--h-right  .hero__text-block { align-items: flex-end;   text-align: right; }
+
+.hero__label {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+.hero__title {
+  font-size: clamp(32px, 6vw, 72px);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.0;
+  letter-spacing: -1px;
+  color: var(--color-white);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.hero__cta-wrap { margin-top: var(--space-2); }
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-white);
+  color: var(--color-black);
+  border: 1.5px solid var(--color-white);
+  border-radius: 9999px;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px 32px;
+  transition: background 0.2s, color 0.2s;
+}
+.hero__cta:hover { background: transparent; color: var(--color-white); opacity: 1; }
+
+.hero__dots {
+  position: absolute;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-2);
+  z-index: 2;
+}
+
+.hero__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.45);
+  transition: background 0.2s;
+  padding: 0;
+}
+.hero__dot--active,
+.hero__dot:hover { background: var(--color-white); }
+
+@media (max-width: 768px) {
+  .hero { min-height: 80vh; }
+  .hero__content { padding: var(--space-6); }
+  .hero__title { font-size: clamp(24px, 8vw, 40px); }
+  .hero__text-block { max-width: 100%; }
+}
+{% endstylesheet %}
+
+<script>
+(function () {
+  var section = document.querySelector('.hero');
+  if (!section) return;
+  var slides = section.querySelectorAll('.hero__slide');
+  var dots   = section.querySelectorAll('.hero__dot');
+  if (slides.length <= 1) return;
+  var current = 0;
+  function goTo(i) {
+    slides[current].classList.remove('hero__slide--active');
+    dots[current].classList.remove('hero__dot--active');
+    current = i;
+    slides[current].classList.add('hero__slide--active');
+    dots[current].classList.add('hero__dot--active');
+  }
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() { goTo(Number(dot.dataset.index)); });
+  });
+  setInterval(function() { goTo((current + 1) % slides.length); }, {{ section.settings.autoplay_delay | times: 1000 }});
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Hero Slideshow",
+  "tag": "section",
+  "settings": [
+    { "type": "range", "id": "autoplay_delay","label": "Délai autoplay (s)", "min": 3, "max": 10, "step": 1, "default": 5 }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        { "type": "image_picker", "id": "image",   "label": "Image" },
+        { "type": "text",         "id": "label",   "label": "Sous-titre",  "default": "Nouvelle collection" },
+        { "type": "text",         "id": "title",   "label": "Titre",       "default": "DÉCOUVREZ LA SÉLECTION" },
+        { "type": "url",          "id": "cta_link","label": "Lien CTA" },
+        { "type": "text",         "id": "cta_label","label": "Texte CTA",  "default": "DÉCOUVRIR" },
+        {
+          "type": "select",
+          "id": "vertical_position",
+          "label": "Position verticale",
+          "options": [
+            { "value": "top",    "label": "Haut" },
+            { "value": "center", "label": "Milieu" },
+            { "value": "bottom", "label": "Bas" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "select",
+          "id": "horizontal_align",
+          "label": "Alignement horizontal",
+          "options": [
+            { "value": "left",   "label": "Gauche" },
+            { "value": "center", "label": "Centre" },
+            { "value": "right",  "label": "Droite" }
+          ],
+          "default": "center"
+        },
+        { "type": "range", "id": "overlay_opacity", "label": "Opacité overlay (%)", "min": 0, "max": 70, "step": 5, "default": 30 }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Hero Slideshow", "blocks": [{ "type": "slide" }] }]
+}
+{% endschema %}

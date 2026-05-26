@@ -1,0 +1,103 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero-slideshow",
+      "blocks": {
+        "slide_1": {
+          "type": "slide",
+          "settings": {
+            "subtitle": "Nouvelle collection",
+            "title": "DÉCOUVREZ LA SÉLECTION",
+            "cta_label": "DÉCOUVRIR",
+            "cta_link": "/collections/all",
+            "overlay_opacity": 30
+          }
+        }
+      },
+      "block_order": ["slide_1"],
+      "settings": {
+        "height": 700,
+        "height_mobile": 500,
+        "autoplay_delay": 5
+      }
+    },
+    "featured_tabs": {
+      "type": "featured-collection-tabs",
+      "settings": {
+        "tab_1_label": "Bestsellers",
+        "tab_2_label": "Nouveautés",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "show_view_all": true
+      }
+    },
+    "brand_banners": {
+      "type": "brand-banners",
+      "blocks": {
+        "brand_1": {
+          "type": "brand",
+          "settings": {
+            "brand_name": "Salomon"
+          }
+        },
+        "brand_2": {
+          "type": "brand",
+          "settings": {
+            "brand_name": "Birkenstock"
+          }
+        },
+        "brand_3": {
+          "type": "brand",
+          "settings": {
+            "brand_name": "Nike"
+          }
+        }
+      },
+      "block_order": ["brand_1", "brand_2", "brand_3"]
+    },
+    "trust_bar": {
+      "type": "trust-bar",
+      "blocks": {
+        "item_1": {
+          "type": "item",
+          "settings": {
+            "icon": "store",
+            "title": "Click & Collect",
+            "subtitle": "Disponible en boutique"
+          }
+        },
+        "item_2": {
+          "type": "item",
+          "settings": {
+            "icon": "badge",
+            "title": "100% Authentiques",
+            "subtitle": "Produits garantis originaux"
+          }
+        },
+        "item_3": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "title": "Livraison rapide",
+            "subtitle": "24/48h en France"
+          }
+        },
+        "item_4": {
+          "type": "item",
+          "settings": {
+            "icon": "headphones",
+            "title": "SAV réactif",
+            "subtitle": "Une question ? On répond"
+          }
+        }
+      },
+      "block_order": ["item_1", "item_2", "item_3", "item_4"]
+    }
+  },
+  "order": [
+    "hero",
+    "featured_tabs",
+    "brand_banners",
+    "trust_bar"
+  ]
+}

@@ -1,0 +1,152 @@
+{%- comment -%}
+  Brand Banners — 3 blocs image côte à côte avec overlay brand name
+  Ex : Salomon · Birkenstock · Nike
+{%- endcomment -%}
+
+<div class="brand-banners page-width">
+  <div class="brand-banners__grid">
+    {%- for block in section.blocks -%}
+      <a
+        href="{{ block.settings.link }}"
+        class="brand-banner"
+        {{ block.shopify_attributes }}
+        {% if block.settings.link == blank %}aria-disabled="true"{% endif %}
+      >
+        <div class="brand-banner__image-wrapper">
+          {%- if block.settings.image != blank -%}
+            <img
+              src="{{ block.settings.image | image_url: width: 800 }}"
+              srcset="
+                {{ block.settings.image | image_url: width: 400 }} 400w,
+                {{ block.settings.image | image_url: width: 800 }} 800w
+              "
+              sizes="(max-width: 768px) 100vw, 33vw"
+              alt="{{ block.settings.brand_name | escape }}"
+              loading="lazy"
+              width="800"
+              height="1000"
+              class="brand-banner__img"
+            >
+          {%- else -%}
+            {{ 'collection-apparel-1' | placeholder_svg_tag: 'brand-banner__img brand-banner__img--placeholder' }}
+          {%- endif -%}
+          <div class="brand-banner__overlay"></div>
+          {%- if block.settings.brand_name != blank -%}
+            <span class="brand-banner__name">{{ block.settings.brand_name }}</span>
+          {%- endif -%}
+        </div>
+      </a>
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+  .brand-banners {
+    padding: var(--space-8) 0;
+  }
+
+  .brand-banners__grid {
+    display: grid;
+    grid-template-columns: repeat({{ section.blocks.size }}, 1fr);
+    gap: 1px;
+    background: var(--color-gray-200);
+  }
+
+  .brand-banner {
+    display: block;
+    text-decoration: none;
+    overflow: hidden;
+    background: var(--color-white);
+  }
+
+  .brand-banner__image-wrapper {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+
+  .brand-banner__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    display: block;
+  }
+
+  .brand-banner__img--placeholder {
+    background: var(--color-gray-100);
+  }
+
+  .brand-banner:hover .brand-banner__img {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+
+  .brand-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .brand-banner__name {
+    position: absolute;
+    bottom: var(--space-5);
+    left: var(--space-5);
+    font-family: var(--font-primary);
+    font-size: 20px;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-white);
+    line-height: 1;
+  }
+
+  @media (max-width: 768px) {
+    .brand-banners__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Brand Banners",
+  "tag": "section",
+  "class": "section-brand-banners",
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Marque",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "brand_name",
+          "label": "Nom de la marque",
+          "default": "Marque"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Lien vers la collection"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brand Banners",
+      "blocks": [
+        { "type": "brand", "settings": { "brand_name": "Salomon" } },
+        { "type": "brand", "settings": { "brand_name": "Birkenstock" } },
+        { "type": "brand", "settings": { "brand_name": "Nike" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

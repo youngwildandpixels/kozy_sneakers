@@ -1,0 +1,10 @@
+{
+  "current": {
+    "color_background": "#FFFFFF",
+    "color_text": "#000000",
+    "color_border": "#E8E8E8",
+    "color_promo": "#E8001B",
+    "body_font_size": 14,
+    "page_width": 1280
+  }
+}

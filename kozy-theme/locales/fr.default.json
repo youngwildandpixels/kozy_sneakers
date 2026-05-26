@@ -1,0 +1,22 @@
+{
+  "general": {
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "close": "Fermer",
+    "cart": "Panier",
+    "account": "Mon compte"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Ajouter au panier",
+      "sold_out": "Épuisé",
+      "unavailable": "Indisponible"
+    }
+  },
+  "cart": {
+    "general": {
+      "empty": "Votre panier est vide.",
+      "title": "Panier"
+    }
+  }
+}

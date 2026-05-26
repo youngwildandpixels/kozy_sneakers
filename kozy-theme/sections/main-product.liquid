@@ -1,0 +1,1056 @@
+{%- comment -%}
+  Main Product — fiche produit reprenant le design de thelaststep.fr
+  Galerie gauche, infos droite (taille + prix par variante)
+{%- endcomment -%}
+{%- liquid
+  assign current = product.selected_or_first_available_variant
+  assign first_col = product.collections.first
+  assign product_form_id = 'product-form-' | append: section.id
+-%}
+
+<section class="pmain" id="product-section-{{ section.id }}">
+  <nav class="breadcrumb container" aria-label="Fil d'Ariane">
+    <a href="{{ routes.root_url }}">Accueil</a>
+    {%- if first_col != blank -%}
+      <span class="breadcrumb__sep">›</span>
+      <a href="{{ first_col.url }}">{{ first_col.title }}</a>
+    {%- endif -%}
+    {%- if product.vendor != blank -%}
+      <span class="breadcrumb__sep">›</span>
+      <span>{{ product.vendor }}</span>
+    {%- endif -%}
+    <span class="breadcrumb__sep">›</span>
+    <span class="breadcrumb__current">{{ product.title }}</span>
+  </nav>
+
+  <div class="pmain__layout container">
+    {%- comment -%} ── GALLERY ── {%- endcomment -%}
+    <div class="pgallery">
+      <div class="pgallery__main">
+        {%- if product.compare_at_price > product.price -%}
+          <span class="badge badge--promo pgallery__badge">PROMO</span>
+        {%- endif -%}
+
+        {%- if product.featured_image != blank -%}
+          <img
+            src="{{ product.featured_image | image_url: width: 1200 }}"
+            srcset="{{ product.featured_image | image_url: width: 600 }} 600w, {{ product.featured_image | image_url: width: 1200 }} 1200w"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            alt="{{ product.featured_image.alt | default: product.title | escape }}"
+            loading="eager"
+            width="1200"
+            height="1200"
+            class="pgallery__main-img"
+            id="pgallery-main-{{ section.id }}"
+            data-zoom-src="{{ product.featured_image | image_url: width: 1800 }}"
+          >
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'pgallery__main-img' }}
+        {%- endif -%}
+
+        <button class="pgallery__expand" aria-label="Agrandir l'image" type="button" data-gallery-zoom>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+
+        {%- if product.images.size > 1 -%}
+          <div class="pgallery__mobile-controls" aria-label="Images produit">
+            <button class="pgallery__mobile-arrow" type="button" data-gallery-mobile-prev aria-label="Image précédente">
+              <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+                <path d="M11.5 3.5L6 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="pgallery__dots" data-gallery-dots>
+              {%- for image in product.images limit: 8 -%}
+                <button
+                  class="pgallery__dot{% if forloop.first %} is-active{% endif %}"
+                  type="button"
+                  data-gallery-dot
+                  data-gallery-index="{{ forloop.index0 }}"
+                  aria-label="Afficher l'image {{ forloop.index }}"
+                  {% if forloop.first %}aria-current="true"{% endif %}
+                ></button>
+              {%- endfor -%}
+            </div>
+            <button class="pgallery__mobile-arrow" type="button" data-gallery-mobile-next aria-label="Image suivante">
+              <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+                <path d="M6.5 3.5L12 9l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if product.images.size > 1 -%}
+        <div class="pgallery__thumbs-wrap" data-gallery-thumbs-wrap>
+          <button class="pgallery__thumb-arrow pgallery__thumb-arrow--prev" type="button" data-gallery-thumbs-prev aria-label="Images précédentes">
+            <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+              <path d="M11.5 3.5L6 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="pgallery__thumbs" data-gallery-thumbs>
+            {%- for image in product.images limit: 8 -%}
+              <button
+                type="button"
+                class="pgallery__thumb{% if forloop.first %} is-active{% endif %}"
+                data-gallery-index="{{ forloop.index0 }}"
+                data-image-src="{{ image | image_url: width: 1200 }}"
+                data-image-srcset="{{ image | image_url: width: 600 }} 600w, {{ image | image_url: width: 1200 }} 1200w"
+                data-zoom-src="{{ image | image_url: width: 1800 }}"
+                aria-label="Image {{ forloop.index }}"
+              >
+                <img
+                  src="{{ image | image_url: width: 220 }}"
+                  alt=""
+                  loading="lazy"
+                  width="220"
+                  height="220"
+                >
+              </button>
+            {%- endfor -%}
+          </div>
+          <button class="pgallery__thumb-arrow pgallery__thumb-arrow--next" type="button" data-gallery-thumbs-next aria-label="Images suivantes">
+            <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+              <path d="M6.5 3.5L12 9l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} ── INFO ── {%- endcomment -%}
+    <div class="pinfo">
+      {%- if product.vendor != blank -%}
+        <p class="pinfo__vendor">{{ product.vendor }}</p>
+      {%- endif -%}
+
+      <h1 class="pinfo__title">{{ product.title }}</h1>
+
+      {%- if current.sku != blank -%}
+        <p class="pinfo__sku">{{ current.sku }}</p>
+      {%- endif -%}
+
+      <div class="pinfo__units">
+        <button type="button" class="size-unit is-active" data-unit="EU">EU</button>
+        <button type="button" class="size-unit" data-unit="US">US</button>
+        <button type="button" class="size-unit" data-unit="UK">UK</button>
+        <button type="button" class="size-unit" data-unit="CM">CM</button>
+        {%- if section.settings.size_guide_url != blank -%}
+          <a href="{{ section.settings.size_guide_url }}" class="pinfo__size-guide">Guide des tailles</a>
+        {%- endif -%}
+      </div>
+
+      {%- form 'product', product, id: product_form_id, class: 'pform' -%}
+        <input type="hidden" name="id" value="{{ current.id }}" data-variant-id>
+
+        {%- unless product.has_only_default_variant -%}
+          <div class="size-grid" role="radiogroup" aria-label="Choix de la taille">
+            {%- for variant in product.variants -%}
+              <label
+                class="size-cell{% unless variant.available %} is-sold-out{% endunless %}{% if variant.id == current.id %} is-selected{% endif %}"
+                data-variant-id="{{ variant.id }}"
+              >
+                <input
+                  type="radio"
+                  name="variant-radio"
+                  value="{{ variant.id }}"
+                  {% unless variant.available %}disabled{% endunless %}
+                  {% if variant.id == current.id %}checked{% endif %}
+                  data-variant-radio
+                  class="visually-hidden"
+                >
+                <span class="size-cell__dot{% if variant.available %} size-cell__dot--available{% endif %}" aria-hidden="true"></span>
+                <span class="size-cell__size">{{ variant.title }}</span>
+                <span class="size-cell__prices">
+                  {%- if variant.compare_at_price > variant.price -%}
+                    <span class="size-cell__compare">{{ variant.compare_at_price | money_without_trailing_zeros }}</span>
+                  {%- endif -%}
+                  <span class="size-cell__price">{{ variant.price | money_without_trailing_zeros }}</span>
+                </span>
+              </label>
+            {%- endfor -%}
+          </div>
+        {%- endunless -%}
+
+        {%- if current.inventory_management == 'shopify' and current.inventory_quantity > 0 and current.inventory_quantity <= section.settings.low_stock_threshold -%}
+          <p class="pinfo__stock">Plus que {{ current.inventory_quantity }} produit{% if current.inventory_quantity > 1 %}s{% endif %} en stock</p>
+        {%- endif -%}
+
+        <ul class="pinfo__shipping">
+          <li><span class="ship-dot ship-dot--filled"></span>Livraison 24/48h</li>
+          <li><span class="ship-dot"></span>Livraison 5 à 12 jours</li>
+        </ul>
+
+        <div class="pinfo__buttons">
+          <button type="submit" name="add" class="btn btn--primary pinfo__btn"{% unless current.available %} disabled{% endunless %}>
+            {%- if current.available -%}Ajouter au panier{%- else -%}Rupture de stock{%- endif -%}
+          </button>
+          <button type="submit" name="properties[Mode]" value="Retrait en boutique" class="btn pinfo__btn pinfo__btn--pickup">
+            Retirer en boutique
+          </button>
+        </div>
+
+      {%- endform -%}
+
+      {%- if section.blocks.size > 0 or product.description != blank -%}
+        <div class="pinfo__accordions">
+          {%- if product.description != blank -%}
+            <details class="acc">
+              <summary class="acc__summary">
+                <span>Description</span>
+                <span class="acc__icon" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </span>
+              </summary>
+              <div class="acc__content rte">{{ product.description }}</div>
+            </details>
+          {%- endif -%}
+
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'accordion' -%}
+              <details class="acc" {{ block.shopify_attributes }}>
+                <summary class="acc__summary">
+                  <span>{{ block.settings.title }}</span>
+                  <span class="acc__icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </span>
+                </summary>
+                <div class="acc__content">{{ block.settings.content }}</div>
+              </details>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <div class="pgallery-modal" aria-hidden="true" data-gallery-modal>
+    <button class="pgallery-modal__backdrop" type="button" data-gallery-close aria-label="Fermer l'image"></button>
+    <div class="pgallery-modal__dialog" role="dialog" aria-modal="true" aria-label="{{ product.title | escape }}">
+      <button class="pgallery-modal__close" type="button" data-gallery-close aria-label="Fermer l'image">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+          <path d="M4 4l14 14M18 4L4 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+      {%- if product.featured_image != blank -%}
+        <img
+          src="{{ product.featured_image | image_url: width: 1800 }}"
+          alt="{{ product.featured_image.alt | default: product.title | escape }}"
+          width="1800"
+          height="1800"
+          class="pgallery-modal__img"
+          data-gallery-modal-img
+        >
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+.pmain {
+  background: var(--color-white);
+  padding-bottom: var(--space-16);
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+  font-size: var(--font-size-small);
+  color: var(--color-gray-500);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+.breadcrumb a:hover { opacity: 0.6; }
+.breadcrumb__sep { color: var(--color-gray-300); }
+.breadcrumb__current { color: var(--color-black); }
+
+/* Layout */
+.pmain__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr);
+  gap: clamp(var(--space-10), 5vw, var(--space-20));
+  align-items: flex-start;
+  padding-top: var(--space-8);
+}
+
+@media (max-width: 1024px) {
+  .pmain__layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
+
+/* ── Galerie ── */
+.pgallery {
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-6));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pgallery__main {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: var(--color-gray-100);
+  overflow: hidden;
+}
+
+.pgallery__badge {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+  z-index: 2;
+  border-radius: 9999px;
+  padding: 6px 14px;
+}
+
+.pgallery__main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: clamp(var(--space-8), 6vw, var(--space-20)) var(--space-10);
+}
+
+.pgallery__expand {
+  position: absolute;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: var(--color-black);
+  z-index: 2;
+  transition: background 0.15s;
+}
+.pgallery__expand:hover { background: transparent; opacity: 0.55; }
+
+.pgallery__mobile-controls {
+  display: none;
+}
+
+.pgallery__thumbs-wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pgallery__thumbs {
+  display: flex;
+  gap: var(--space-2);
+  max-width: 100%;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.pgallery__thumbs::-webkit-scrollbar { display: none; }
+
+.pgallery__thumb-arrow {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--color-black);
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.pgallery__thumb-arrow:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.pgallery__thumb-arrow[disabled] {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.pgallery__thumb {
+  width: 96px;
+  height: 96px;
+  background: var(--color-gray-100);
+  padding: var(--space-2);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+}
+.pgallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.pgallery__thumb.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-black);
+}
+
+.pgallery-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+}
+.pgallery-modal.is-open {
+  display: flex;
+}
+.pgallery-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.pgallery-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 1100px);
+  height: min(86vh, 900px);
+  background: var(--color-gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pgallery-modal__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: var(--space-10);
+}
+.pgallery-modal__close {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--color-black);
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-black);
+}
+.pgallery-modal__close:hover {
+  opacity: 0.6;
+}
+
+@media (max-width: 1024px) {
+  .pgallery { position: static; }
+}
+
+/* ── Info ── */
+.pinfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 560px;
+  padding-top: var(--space-1);
+}
+
+.pinfo__vendor {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--color-black);
+}
+
+.pinfo__title {
+  font-size: clamp(32px, 3.25vw, 46px);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.02;
+  letter-spacing: -1px;
+  margin: 0;
+}
+
+.pinfo__sku {
+  font-size: var(--font-size-small);
+  color: var(--color-gray-500);
+  letter-spacing: 1px;
+}
+
+/* Unit toggle */
+.pinfo__units {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.size-unit {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0;
+}
+.size-unit.is-active {
+  color: var(--color-black);
+  font-weight: var(--font-weight-bold);
+}
+
+.pinfo__size-guide {
+  margin-left: auto;
+  font-size: var(--font-size-small);
+  text-decoration: underline;
+}
+
+/* Size grid avec prix */
+.size-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 0;
+}
+
+.size-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-3);
+  border: 1.5px solid var(--color-black);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+  min-height: 72px;
+  background: var(--color-white);
+  box-shadow: 0 3px 0 var(--color-black);
+}
+.size-cell:hover {
+  border-color: var(--color-black);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--color-black);
+}
+.size-cell.is-selected {
+  background: var(--color-black);
+  border-color: var(--color-black);
+  color: var(--color-white);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--color-black);
+}
+.size-cell.is-sold-out {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 0 var(--color-gray-300);
+}
+.size-cell.is-sold-out::after {
+  content: '';
+  position: absolute;
+  left: 8px; right: 8px;
+  top: 50%;
+  height: 1px;
+  background: var(--color-gray-500);
+}
+
+.size-cell__dot {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-gray-300);
+}
+.size-cell__dot--available { background: var(--color-black); }
+.size-cell.is-selected .size-cell__dot--available { background: var(--color-white); }
+
+.size-cell__size {
+  font-weight: var(--font-weight-bold);
+  font-size: 18px;
+  line-height: 1;
+}
+.size-cell__prices {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-top: 5px;
+  line-height: 1;
+}
+.size-cell__compare,
+.size-cell__price {
+  font-size: var(--font-size-small);
+  color: inherit;
+  line-height: 1;
+}
+.size-cell__compare {
+  color: var(--color-gray-500);
+  text-decoration: line-through;
+}
+.size-cell.is-selected .size-cell__compare { color: rgba(255,255,255,0.6); }
+
+/* Stock */
+.pinfo__stock {
+  font-size: var(--font-size-small);
+  color: var(--color-gray-700);
+}
+
+/* Shipping pills */
+.pinfo__shipping {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  align-items: center;
+  margin-top: var(--space-4);
+}
+.pinfo__shipping li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  border: 0;
+  background: var(--color-gray-100);
+  padding: 6px 13px;
+  border-radius: 9999px;
+  width: fit-content;
+}
+.pinfo__shipping li + li {
+  color: var(--color-gray-500);
+  background: var(--color-gray-200);
+  opacity: 0.75;
+}
+.ship-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--color-black);
+  display: inline-block;
+}
+.ship-dot--filled { background: var(--color-black); }
+
+/* Buy buttons */
+.pinfo__buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+.pinfo__btn {
+  width: 100%;
+  min-height: 58px;
+  padding: 15px var(--space-6);
+  font-weight: var(--font-weight-semibold);
+}
+.pinfo__btn--pickup {
+  background: var(--color-gray-200);
+  color: var(--color-gray-500);
+  border: 1.5px solid var(--color-gray-300);
+}
+.pinfo__btn--pickup:hover {
+  background: var(--color-gray-200);
+  border-color: var(--color-gray-200);
+  opacity: 1;
+}
+.pinfo__btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Accordéons */
+.pinfo__accordions {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-4);
+}
+.acc {
+  border-bottom: 1.5px solid var(--color-black);
+}
+.acc:first-child { border-top: 1.5px solid var(--color-black); }
+.acc__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) 0;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  list-style: none;
+}
+.acc__summary::-webkit-details-marker { display: none; }
+.acc__icon { display: flex; transition: transform 0.2s; }
+.acc[open] .acc__icon { transform: rotate(180deg); }
+.acc__content {
+  padding: 0 0 var(--space-5);
+  color: var(--color-gray-700);
+  font-size: var(--font-size-small);
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .pmain {
+    padding-bottom: var(--space-10);
+  }
+
+  .breadcrumb {
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+
+  .pmain__layout {
+    padding-top: var(--space-5);
+  }
+
+  .pgallery__main {
+    aspect-ratio: 4 / 5;
+    margin-left: calc(var(--container-padding) * -1);
+    margin-right: calc(var(--container-padding) * -1);
+  }
+
+  .pgallery__main-img {
+    padding: var(--space-10) var(--space-5) var(--space-16);
+  }
+
+  .pgallery__badge {
+    top: var(--space-4);
+    left: var(--space-5);
+  }
+
+  .pgallery__thumbs-wrap {
+    display: none;
+  }
+
+  .pgallery__expand {
+    right: var(--space-5);
+    bottom: var(--space-5);
+  }
+
+  .pgallery__mobile-controls {
+    position: absolute;
+    left: var(--space-5);
+    right: calc(var(--space-5) + 48px);
+    bottom: var(--space-5);
+    z-index: 3;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .pgallery__mobile-arrow {
+    width: 34px;
+    height: 34px;
+    border: 1.5px solid var(--color-black);
+    border-radius: 50%;
+    background: var(--color-white);
+    color: var(--color-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pgallery__dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .pgallery__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: var(--color-gray-300);
+    transition: width 0.18s ease, background 0.18s ease;
+  }
+
+  .pgallery__dot.is-active {
+    width: 22px;
+    background: var(--color-black);
+  }
+
+  .pgallery-modal {
+    padding: var(--space-5);
+  }
+
+  .pgallery-modal__dialog {
+    width: 100%;
+    height: 72vh;
+  }
+
+  .pgallery-modal__img {
+    padding: var(--space-5);
+  }
+
+  .pinfo {
+    max-width: none;
+    gap: var(--space-4);
+  }
+
+  .pinfo__title {
+    font-size: 32px;
+  }
+
+  .pinfo__units {
+    margin-top: var(--space-2);
+  }
+
+  .size-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .size-cell {
+    align-items: center;
+    text-align: center;
+    min-height: 68px;
+  }
+
+  .pinfo__buttons {
+    grid-template-columns: 1fr;
+  }
+
+}
+{% endstylesheet %}
+
+<script>
+(function () {
+  var section = document.getElementById('product-section-{{ section.id }}');
+  if (!section) return;
+
+  // Variant selector
+  var radios = section.querySelectorAll('[data-variant-radio]');
+  var hiddenInput = section.querySelector('[data-variant-id]');
+  var cells = section.querySelectorAll('.size-cell');
+
+  radios.forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      hiddenInput.value = radio.value;
+      cells.forEach(function (c) { c.classList.remove('is-selected'); });
+      var cell = radio.closest('.size-cell');
+      if (cell) cell.classList.add('is-selected');
+      var url = new URL(window.location);
+      url.searchParams.set('variant', radio.value);
+      window.history.replaceState({}, '', url);
+    });
+  });
+
+  // Gallery thumbnails
+  var thumbs = section.querySelectorAll('.pgallery__thumb');
+  var thumbsTrack = section.querySelector('[data-gallery-thumbs]');
+  var thumbsPrev = section.querySelector('[data-gallery-thumbs-prev]');
+  var thumbsNext = section.querySelector('[data-gallery-thumbs-next]');
+  var dots = section.querySelectorAll('[data-gallery-dot]');
+  var mobilePrev = section.querySelector('[data-gallery-mobile-prev]');
+  var mobileNext = section.querySelector('[data-gallery-mobile-next]');
+  var mainImg = section.querySelector('#pgallery-main-{{ section.id }}');
+  var zoomButton = section.querySelector('[data-gallery-zoom]');
+  var modal = section.querySelector('[data-gallery-modal]');
+  var modalImg = section.querySelector('[data-gallery-modal-img]');
+  var closeButtons = section.querySelectorAll('[data-gallery-close]');
+
+  function setZoomImage(src) {
+    if (!modalImg || !src) return;
+    modalImg.src = src;
+  }
+
+  function openZoom() {
+    if (!modal || !modalImg || !mainImg) return;
+    setZoomImage(mainImg.dataset.zoomSrc || mainImg.currentSrc || mainImg.src);
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.style.overflow = 'hidden';
+  }
+
+  function closeZoom() {
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.overflow = '';
+  }
+
+  function updateThumbArrows() {
+    if (!thumbsTrack || !thumbsPrev || !thumbsNext) return;
+    var maxScroll = thumbsTrack.scrollWidth - thumbsTrack.clientWidth;
+    var hasOverflow = maxScroll > 2;
+    thumbsPrev.hidden = !hasOverflow;
+    thumbsNext.hidden = !hasOverflow;
+    thumbsPrev.disabled = !hasOverflow || thumbsTrack.scrollLeft <= 2;
+    thumbsNext.disabled = !hasOverflow || thumbsTrack.scrollLeft >= maxScroll - 2;
+  }
+
+  function scrollActiveThumb(thumb) {
+    if (!thumb || !thumbsTrack) return;
+    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    window.setTimeout(updateThumbArrows, 220);
+  }
+
+  function scrollThumbs(direction) {
+    if (!thumbsTrack) return;
+    var amount = Math.max(thumbsTrack.clientWidth * 0.75, 120);
+    thumbsTrack.scrollBy({ left: direction * amount, behavior: 'smooth' });
+    window.setTimeout(updateThumbArrows, 240);
+  }
+
+  function getActiveIndex() {
+    var active = section.querySelector('.pgallery__thumb.is-active');
+    if (!active) return 0;
+    return parseInt(active.dataset.galleryIndex || '0', 10);
+  }
+
+  function setActiveImage(index) {
+    if (!thumbs.length) return;
+    var nextIndex = (index + thumbs.length) % thumbs.length;
+    var thumb = thumbs[nextIndex];
+    if (!thumb) return;
+    thumbs.forEach(function (x) { x.classList.remove('is-active'); });
+    dots.forEach(function (dot) {
+      var isActive = parseInt(dot.dataset.galleryIndex || '0', 10) === nextIndex;
+      dot.classList.toggle('is-active', isActive);
+      if (isActive) {
+        dot.setAttribute('aria-current', 'true');
+      } else {
+        dot.removeAttribute('aria-current');
+      }
+    });
+    thumb.classList.add('is-active');
+    var src = thumb.dataset.imageSrc;
+    if (src && mainImg) {
+      mainImg.src = src;
+      if (thumb.dataset.imageSrcset) mainImg.srcset = thumb.dataset.imageSrcset;
+      mainImg.dataset.zoomSrc = thumb.dataset.zoomSrc || src;
+      setZoomImage(mainImg.dataset.zoomSrc);
+    }
+    scrollActiveThumb(thumb);
+  }
+
+  thumbs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      setActiveImage(parseInt(t.dataset.galleryIndex || '0', 10));
+    });
+  });
+
+  dots.forEach(function (dot) {
+    dot.addEventListener('click', function () {
+      setActiveImage(parseInt(dot.dataset.galleryIndex || '0', 10));
+    });
+  });
+
+  if (mobilePrev) {
+    mobilePrev.addEventListener('click', function () {
+      setActiveImage(getActiveIndex() - 1);
+    });
+  }
+
+  if (mobileNext) {
+    mobileNext.addEventListener('click', function () {
+      setActiveImage(getActiveIndex() + 1);
+    });
+  }
+
+  if (thumbsPrev) {
+    thumbsPrev.addEventListener('click', function () { scrollThumbs(-1); });
+  }
+
+  if (thumbsNext) {
+    thumbsNext.addEventListener('click', function () { scrollThumbs(1); });
+  }
+
+  if (thumbsTrack) {
+    thumbsTrack.addEventListener('scroll', updateThumbArrows, { passive: true });
+    window.addEventListener('resize', updateThumbArrows);
+    updateThumbArrows();
+  }
+
+  if (zoomButton) {
+    zoomButton.addEventListener('click', openZoom);
+  }
+
+  closeButtons.forEach(function (button) {
+    button.addEventListener('click', closeZoom);
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') closeZoom();
+  });
+
+  // Unit toggle (cosmétique)
+  var unitBtns = section.querySelectorAll('.size-unit');
+  unitBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      unitBtns.forEach(function (x) { x.classList.remove('is-active'); });
+      b.classList.add('is-active');
+    });
+  });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Product",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "url",
+      "id": "size_guide_url",
+      "label": "Lien Guide des tailles"
+    },
+    {
+      "type": "range",
+      "id": "low_stock_threshold",
+      "label": "Seuil affichage stock faible",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "accordion",
+      "name": "Accordéon info",
+      "settings": [
+        { "type": "text",     "id": "title",   "label": "Titre",   "default": "Entretien" },
+        { "type": "richtext", "id": "content", "label": "Contenu", "default": "<p>Décrivez ici les conseils d'entretien de la paire.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product",
+      "blocks": [
+        { "type": "accordion", "settings": { "title": "Entretien" } },
+        { "type": "accordion", "settings": { "title": "Livraison et retours" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
