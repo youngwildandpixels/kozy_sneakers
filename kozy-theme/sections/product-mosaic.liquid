@@ -1,25 +1,11 @@
 {%- comment -%}
-  Product Mosaic — produit featured au centre (2×2) + petits produits autour
-  Fond blanc, juste les images, mise en page asymétrique
+  Product Mosaic - grille simple de produits
+  Fond blanc, juste les images
 {%- endcomment -%}
 {%- liquid
   assign coll = section.settings.collection
-  assign featured = section.settings.featured_product
-  assign featured_video = section.settings.featured_video
   assign user_limit = section.settings.products_to_show
-
-  # Si une video est fournie, elle remplace l'image du produit central — mais le slot existe toujours
-  assign has_featured_slot = false
-  if featured != blank or featured_video != blank
-    assign has_featured_slot = true
-  endif
-
-  # Plafonne pour tenir en 4 rangées (6 cols, featured = 2x2 = 4 cells)
-  if has_featured_slot
-    assign max_items = 20
-  else
-    assign max_items = 24
-  endif
+  assign max_items = 24
   if user_limit > max_items
     assign limit = max_items
   else
@@ -35,64 +21,8 @@
   {%- endif -%}
 
   <div class="pmosaic__grid">
-    {%- if has_featured_slot -%}
-      {%- if featured_video != blank -%}
-        {%- if featured != blank -%}
-          <a
-            href="{{ featured.url }}"
-            class="pmosaic__item pmosaic__item--featured pmosaic__item--video"
-            aria-label="{{ featured.title | escape }}"
-          >
-        {%- else -%}
-          <div class="pmosaic__item pmosaic__item--featured pmosaic__item--video" aria-hidden="true">
-        {%- endif -%}
-          {%- liquid
-            assign video_classes = 'pmosaic__video'
-            if section.settings.remove_video_bg
-              assign video_classes = 'pmosaic__video pmosaic__video--no-bg'
-            endif
-          -%}
-          {{ featured_video | video_tag:
-            class: video_classes,
-            image_size: '1200x',
-            loop: true,
-            controls: false,
-            muted: true,
-            autoplay: true,
-            playsinline: true
-          }}
-        {%- if featured != blank -%}
-          </a>
-        {%- else -%}
-          </div>
-        {%- endif -%}
-      {%- else -%}
-        <a
-          href="{{ featured.url }}"
-          class="pmosaic__item pmosaic__item--featured"
-          aria-label="{{ featured.title | escape }}"
-        >
-          {%- if featured.featured_image != blank -%}
-            <img
-              src="{{ featured.featured_image | image_url: width: 1200 }}"
-              srcset="{{ featured.featured_image | image_url: width: 600 }} 600w, {{ featured.featured_image | image_url: width: 1200 }} 1200w"
-              sizes="(max-width: 768px) 100vw, 33vw"
-              alt="{{ featured.featured_image.alt | default: featured.title | escape }}"
-              loading="lazy"
-              width="1200"
-              height="1200"
-              class="pmosaic__img"
-            >
-          {%- else -%}
-            {{ 'product-1' | placeholder_svg_tag: 'pmosaic__img' }}
-          {%- endif -%}
-        </a>
-      {%- endif -%}
-    {%- endif -%}
-
     {%- if coll != blank and coll.products.size > 0 -%}
       {%- for product in coll.products limit: limit -%}
-        {%- if featured != blank and product.id == featured.id -%}{%- continue -%}{%- endif -%}
         <a
           href="{{ product.url }}"
           class="pmosaic__item"
@@ -144,12 +74,11 @@
   margin: 0;
 }
 
-/* Grid 6 colonnes × 4 rangées — full width, featured center spans 2×2 */
+/* Grid 6 colonnes x 4 rangees - full width */
 .pmosaic__grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-auto-rows: 1fr;
-  grid-auto-flow: dense;
   gap: var(--space-4) var(--space-6);
   width: 100%;
   max-width: 100%;
@@ -175,44 +104,10 @@
   transition: transform 0.3s ease;
 }
 
-.pmosaic__video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Retire le fond blanc — multiply rend les pixels blancs transparents */
-.pmosaic__video--no-bg {
-  mix-blend-mode: multiply;
-  object-fit: contain;
-}
-
-.pmosaic__item--video {
-  padding: 0;
-  overflow: hidden;
-}
-
-.pmosaic__item--video:has(.pmosaic__video--no-bg) {
-  padding: var(--space-6);
-  background: var(--color-white);
-}
-
-/* Produit central — 2 colonnes × 2 rangées au milieu */
-.pmosaic__item--featured {
-  grid-column: 3 / 5;
-  grid-row: 2 / 4;
-  padding: var(--space-6);
-}
-
 @media (max-width: 1024px) {
   .pmosaic__grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-3);
-  }
-  .pmosaic__item--featured {
-    grid-column: 2 / 4;
-    grid-row: 2 / 4;
   }
 }
 
@@ -220,26 +115,14 @@
   .pmosaic { padding: var(--space-6) 0; }
 
   .pmosaic__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
     padding: 0 var(--space-3);
-  }
-
-  .pmosaic__item--featured {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    aspect-ratio: 1 / 1;
-    max-height: 78vh;
-    padding: var(--space-3);
   }
 
   .pmosaic__item {
     width: 100%;
     padding: var(--space-2);
-  }
-
-  .pmosaic__item--video {
-    padding: 0;
   }
 }
 {% endstylesheet %}
@@ -256,33 +139,15 @@
       "default": "SLIDES"
     },
     {
-      "type": "product",
-      "id": "featured_product",
-      "label": "Produit central (gros)"
-    },
-    {
-      "type": "video",
-      "id": "featured_video",
-      "label": "Vidéo centrale (remplace l'image du produit)",
-      "info": "Si une vidéo est ajoutée, elle remplace l'image du produit central. La vidéo tourne en boucle, sans son. Le produit reste cliquable si défini."
-    },
-    {
-      "type": "checkbox",
-      "id": "remove_video_bg",
-      "label": "Retirer le fond blanc de la vidéo",
-      "info": "Rend les pixels blancs transparents (mix-blend-mode: multiply). Idéal pour une vidéo produit sur fond blanc.",
-      "default": false
-    },
-    {
       "type": "collection",
       "id": "collection",
-      "label": "Collection (produits autour)"
+      "label": "Collection"
     },
     {
       "type": "range",
       "id": "products_to_show",
-      "label": "Produits à afficher (autour)",
-      "info": "Plafonné automatiquement pour tenir en 4 rangées (20 si produit central défini, sinon 24).",
+      "label": "Produits à afficher",
+      "info": "Plafonné automatiquement à 24 pour tenir en 4 rangées.",
       "min": 12,
       "max": 32,
       "step": 2,

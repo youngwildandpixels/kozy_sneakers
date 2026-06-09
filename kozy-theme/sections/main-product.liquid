@@ -6,6 +6,13 @@
   assign current = product.selected_or_first_available_variant
   assign first_col = product.collections.first
   assign product_form_id = 'product-form-' | append: section.id
+  assign size_option_position = 0
+  for option in product.options_with_values
+    assign option_name = option.name | downcase
+    if option_name contains 'taille' or option_name contains 'size' or option_name contains 'pointure'
+      assign size_option_position = option.position
+    endif
+  endfor
 -%}
 
 <section class="pmain" id="product-section-{{ section.id }}">
@@ -132,10 +139,10 @@
       {%- endif -%}
 
       <div class="pinfo__units">
-        <button type="button" class="size-unit is-active" data-unit="EU">EU</button>
-        <button type="button" class="size-unit" data-unit="US">US</button>
-        <button type="button" class="size-unit" data-unit="UK">UK</button>
-        <button type="button" class="size-unit" data-unit="CM">CM</button>
+        <button type="button" class="size-unit is-active" data-unit="EU" aria-pressed="true">EU</button>
+        <button type="button" class="size-unit" data-unit="US" aria-pressed="false">US</button>
+        <button type="button" class="size-unit" data-unit="UK" aria-pressed="false">UK</button>
+        <button type="button" class="size-unit" data-unit="CM" aria-pressed="false">CM</button>
         {%- if section.settings.size_guide_url != blank -%}
           <a href="{{ section.settings.size_guide_url }}" class="pinfo__size-guide">Guide des tailles</a>
         {%- endif -%}
@@ -147,6 +154,16 @@
         {%- unless product.has_only_default_variant -%}
           <div class="size-grid" role="radiogroup" aria-label="Choix de la taille">
             {%- for variant in product.variants -%}
+              {%- liquid
+                assign variant_size_label = variant.title
+                if size_option_position == 1
+                  assign variant_size_label = variant.option1
+                elsif size_option_position == 2
+                  assign variant_size_label = variant.option2
+                elsif size_option_position == 3
+                  assign variant_size_label = variant.option3
+                endif
+              -%}
               <label
                 class="size-cell{% unless variant.available %} is-sold-out{% endunless %}{% if variant.id == current.id %} is-selected{% endif %}"
                 data-variant-id="{{ variant.id }}"
@@ -161,7 +178,7 @@
                   class="visually-hidden"
                 >
                 <span class="size-cell__dot{% if variant.available %} size-cell__dot--available{% endif %}" aria-hidden="true"></span>
-                <span class="size-cell__size">{{ variant.title }}</span>
+                <span class="size-cell__size" data-size-source="{{ variant_size_label | escape }}">{{ variant_size_label }}</span>
                 <span class="size-cell__prices">
                   {%- if variant.compare_at_price > variant.price -%}
                     <span class="size-cell__compare">{{ variant.compare_at_price | money_without_trailing_zeros }}</span>
@@ -852,7 +869,7 @@
 
   radios.forEach(function (radio) {
     radio.addEventListener('change', function () {
-      hiddenInput.value = radio.value;
+      if (hiddenInput) hiddenInput.value = radio.value;
       cells.forEach(function (c) { c.classList.remove('is-selected'); });
       var cell = radio.closest('.size-cell');
       if (cell) cell.classList.add('is-selected');
@@ -1001,12 +1018,238 @@
     if (event.key === 'Escape') closeZoom();
   });
 
-  // Unit toggle (cosmétique)
+  // Size unit conversion
   var unitBtns = section.querySelectorAll('.size-unit');
+  var sizeLabels = section.querySelectorAll('.size-cell__size');
+  var productTitle = {{ product.title | json }}.toLowerCase();
+  var sizeProfile = productTitle.indexOf('(w)') !== -1 || productTitle.indexOf("women") !== -1 || productTitle.indexOf("femme") !== -1
+    ? 'women'
+    : productTitle.indexOf('(gs)') !== -1 || productTitle.indexOf("grade school") !== -1
+      ? 'gs'
+      : 'men';
+  var sizeMap = {
+    '35': { US: '3', UK: '2.5', CM: '22' },
+    '35.5': { US: '3.5', UK: '3', CM: '22.5' },
+    '36': { US: '4', UK: '3.5', CM: '23' },
+    '36.5': { US: '4.5', UK: '4', CM: '23.5' },
+    '36.7': { US: '4.5', UK: '4', CM: '23.5' },
+    '37.3': { US: '5', UK: '4.5', CM: '23.5' },
+    '37.5': { US: '5', UK: '4.5', CM: '23.5' },
+    '38': { US: '5.5', UK: '5', CM: '24' },
+    '38.5': { US: '6', UK: '5.5', CM: '24' },
+    '38.7': { US: '6', UK: '5.5', CM: '24' },
+    '39': { US: '6.5', UK: '6', CM: '24.5' },
+    '39.3': { US: '6.5', UK: '6', CM: '24.5' },
+    '40': { US: '7', UK: '6', CM: '25' },
+    '40.5': { US: '7.5', UK: '6.5', CM: '25.5' },
+    '40.7': { US: '7.5', UK: '6.5', CM: '25.5' },
+    '41': { US: '8', UK: '7', CM: '26' },
+    '41.3': { US: '8', UK: '7', CM: '26' },
+    '42': { US: '8.5', UK: '7.5', CM: '26.5' },
+    '42.5': { US: '9', UK: '8', CM: '27' },
+    '42.7': { US: '9', UK: '8.5', CM: '27' },
+    '43': { US: '9.5', UK: '8.5', CM: '27.5' },
+    '43.3': { US: '9.5', UK: '9', CM: '27.5' },
+    '44': { US: '10', UK: '9', CM: '28' },
+    '44.5': { US: '10.5', UK: '9.5', CM: '28.5' },
+    '44.7': { US: '10.5', UK: '10', CM: '28.5' },
+    '45': { US: '11', UK: '10', CM: '29' },
+    '45.3': { US: '11', UK: '10.5', CM: '29' },
+    '45.5': { US: '11.5', UK: '10.5', CM: '29.5' },
+    '46': { US: '12', UK: '11', CM: '30' },
+    '46.5': { US: '12.5', UK: '11.5', CM: '30.5' },
+    '46.7': { US: '12.5', UK: '12', CM: '30.5' },
+    '47': { US: '12.5', UK: '11.5', CM: '30.5' },
+    '47.3': { US: '13', UK: '12.5', CM: '31' },
+    '47.5': { US: '13', UK: '12', CM: '31' },
+    '48': { US: '13.5', UK: '12.5', CM: '31.5' },
+    '48.5': { US: '14', UK: '13', CM: '32' },
+    '48.7': { US: '14', UK: '13.5', CM: '32' },
+    '49': { US: '14.5', UK: '13.5', CM: '32.5' },
+    '49.3': { US: '14.5', UK: '14', CM: '32.5' },
+    '49.5': { US: '15', UK: '14', CM: '33' },
+    '50': { US: '15.5', UK: '14.5', CM: '33.5' },
+    '50.5': { US: '16', UK: '15', CM: '34' },
+    '51': { US: '16.5', UK: '15.5', CM: '34.5' },
+    '51.5': { US: '17', UK: '16', CM: '35' },
+    '52': { US: '17.5', UK: '16.5', CM: '35.5' },
+    '52.5': { US: '18', UK: '17', CM: '36' }
+  };
+
+  function normalizeDecimal(value) {
+    var number = Number(value);
+    if (!Number.isFinite(number)) return '';
+    var rounded = Math.round(number * 10) / 10;
+    return String(rounded).replace(/\.0$/, '');
+  }
+
+  function formatSize(value) {
+    return String(value).replace('.', ',').replace(/,0$/, '');
+  }
+
+  function addSizeAmount(value, amount) {
+    var size = Number(value);
+    if (!Number.isFinite(size)) return value;
+    return normalizeDecimal(size + amount);
+  }
+
+  function normalizeSizeText(value) {
+    return String(value || '')
+      .toLowerCase()
+      .replace(/,/g, '.')
+      .replace(/\u00a0/g, ' ')
+      .replace(/⅓/g, ' 1/3')
+      .replace(/⅔/g, ' 2/3')
+      .replace(/½/g, '.5')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function normalizeSizeKey(value) {
+    var normalized = normalizeSizeText(value)
+      .replace(/\beu\b|\beur\b|taille|size|pointure/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    var fraction = normalized.match(/(\d{2})\s*(1|2)\/3/);
+    if (fraction) {
+      return normalizeDecimal(Number(fraction[1]) + (fraction[2] === '1' ? 0.3 : 0.7));
+    }
+
+    var number = normalized.match(/\d{2}(?:\.\d+)?/);
+    if (!number) return '';
+    return normalizeDecimal(number[0]);
+  }
+
+  function findNearestEuKey(key) {
+    if (!key) return '';
+    if (sizeMap[key]) return key;
+    var numericKey = Number(key);
+    if (!Number.isFinite(numericKey)) return '';
+    var nearest = '';
+    var nearestDistance = Infinity;
+    Object.keys(sizeMap).forEach(function (candidate) {
+      var distance = Math.abs(Number(candidate) - numericKey);
+      if (distance < nearestDistance) {
+        nearest = candidate;
+        nearestDistance = distance;
+      }
+    });
+    return nearestDistance <= 0.06 ? nearest : '';
+  }
+
+  function findEuKeyByUnit(sourceUnit, sourceValue) {
+    var normalizedValue = normalizeDecimal(sourceValue);
+    if (!normalizedValue) return '';
+
+    if (sourceUnit === 'EU') {
+      return findNearestEuKey(normalizedValue);
+    }
+
+    var matchedKey = '';
+    Object.keys(sizeMap).some(function (candidate) {
+      var candidateValue = sizeMap[candidate][sourceUnit];
+      if (!candidateValue) return false;
+      if (normalizeDecimal(String(candidateValue).replace(/[^\d.]/g, '')) === normalizedValue) {
+        matchedKey = candidate;
+        return true;
+      }
+      return false;
+    });
+    return matchedKey;
+  }
+
+  function parseSizeValue(value) {
+    var normalized = normalizeSizeText(value);
+    var sourceUnit = '';
+    var sourceValue = '';
+    var unitBefore = normalized.match(/\b(eu|eur|us|uk|cm|jp)\s*(\d+(?:\.\d+)?(?:\s*(?:1|2)\/3)?)/);
+    var unitAfter = normalized.match(/(\d+(?:\.\d+)?(?:\s*(?:1|2)\/3)?)\s*(eu|eur|us|uk|cm|jp)\b/);
+    var match = unitBefore || unitAfter;
+
+    if (match) {
+      sourceUnit = (unitBefore ? match[1] : match[2]).toUpperCase();
+      sourceValue = unitBefore ? match[2] : match[1];
+      if (sourceUnit === 'EUR') sourceUnit = 'EU';
+      if (sourceUnit === 'JP') sourceUnit = 'CM';
+    }
+
+    if (!sourceValue) {
+      var fraction = normalized.match(/(\d+)\s*(1|2)\/3/);
+      if (fraction) {
+        sourceValue = normalizeDecimal(Number(fraction[1]) + (fraction[2] === '1' ? 0.3 : 0.7));
+      } else {
+        var number = normalized.match(/\d+(?:\.\d+)?/);
+        sourceValue = number ? number[0] : '';
+      }
+    }
+
+    if (!sourceUnit && sourceValue) {
+      var numericValue = Number(sourceValue);
+      sourceUnit = numericValue >= 30 ? 'EU' : 'US';
+    }
+
+    return {
+      unit: sourceUnit,
+      value: sourceValue,
+      euKey: findEuKeyByUnit(sourceUnit, sourceValue)
+    };
+  }
+
+  function getConvertedSize(rawSize, unit) {
+    var parsed = parseSizeValue(rawSize);
+    var key = parsed.euKey || findNearestEuKey(normalizeSizeKey(rawSize));
+    var converted = '';
+
+    if (unit === 'EU') {
+      converted = key || (parsed.unit === 'EU' ? parsed.value : '');
+    } else if (key && sizeMap[key] && sizeMap[key][unit]) {
+      converted = sizeMap[key][unit];
+    }
+
+    if (!converted && key) {
+      var numericKey = Number(key);
+      Object.keys(sizeMap).some(function (candidate) {
+        if (Math.abs(Number(candidate) - numericKey) <= 0.06 && sizeMap[candidate][unit]) {
+          converted = sizeMap[candidate][unit];
+          return true;
+        }
+        return false;
+      });
+    }
+
+    if (unit === 'US' && converted && sizeProfile === 'women') {
+      converted = addSizeAmount(converted, 1.5);
+    }
+    if (unit === 'US' && converted && sizeProfile === 'gs') {
+      converted = converted + 'Y';
+    }
+
+    return converted ? formatSize(converted) : rawSize;
+  }
+
+  function formatSizeWithUnit(rawSize, unit) {
+    return getConvertedSize(rawSize, unit) + ' ' + unit;
+  }
+
+  function updateSizeUnit(unit) {
+    sizeLabels.forEach(function (label) {
+      var sourceSize = label.getAttribute('data-size-source') || label.dataset.sizeSource || label.textContent.trim();
+      label.dataset.sizeSource = sourceSize;
+      label.dataset.sizeKey = normalizeSizeKey(sourceSize);
+      label.textContent = formatSizeWithUnit(sourceSize, unit);
+    });
+  }
+
+  updateSizeUnit('EU');
+
   unitBtns.forEach(function (b) {
-    b.addEventListener('click', function () {
+    b.addEventListener('click', function (event) {
+      event.preventDefault();
       unitBtns.forEach(function (x) { x.classList.remove('is-active'); });
       b.classList.add('is-active');
+      unitBtns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      updateSizeUnit(b.dataset.unit || 'EU');
     });
   });
 
