@@ -252,6 +252,10 @@
 
     var current   = 0;
     var visible   = getVisible();
+    var touchStartX = 0;
+    var touchStartY = 0;
+    var touchDeltaX = 0;
+    var touchDragging = false;
 
     function getVisible() {
       if (window.innerWidth <= 768)  return 1.5;
@@ -295,6 +299,41 @@
 
     btnNext.addEventListener('click', function () {
       if (current < maxIndex()) { current++; update(); }
+    });
+
+    items.addEventListener('touchstart', function (event) {
+      if (!event.touches || event.touches.length !== 1) return;
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+      touchDeltaX = 0;
+      touchDragging = false;
+    }, { passive: true });
+
+    items.addEventListener('touchmove', function (event) {
+      if (!event.touches || event.touches.length !== 1) return;
+      var deltaX = event.touches[0].clientX - touchStartX;
+      var deltaY = event.touches[0].clientY - touchStartY;
+
+      if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        touchDragging = true;
+        touchDeltaX = deltaX;
+        event.preventDefault();
+      }
+    }, { passive: false });
+
+    items.addEventListener('touchend', function () {
+      if (!touchDragging) return;
+      var threshold = Math.max(40, cardWidth() * 0.18);
+
+      if (touchDeltaX < -threshold && current < maxIndex()) {
+        current++;
+      } else if (touchDeltaX > threshold && current > 0) {
+        current--;
+      }
+
+      update();
+      touchDragging = false;
+      touchDeltaX = 0;
     });
 
     window.addEventListener('resize', function () {

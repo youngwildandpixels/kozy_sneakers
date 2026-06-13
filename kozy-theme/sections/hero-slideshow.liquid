@@ -6,25 +6,46 @@
       {%- liquid
         assign v = block.settings.vertical_position
         assign h = block.settings.horizontal_align
-        assign content_class = 'hero__content hero__content--v-' | append: v | append: ' hero__content--h-' | append: h
+        assign mv = block.settings.mobile_vertical_position | default: v
+        assign mh = block.settings.mobile_horizontal_align | default: h
+        assign content_class = 'hero__content hero__content--v-' | append: v | append: ' hero__content--h-' | append: h | append: ' hero__content--mv-' | append: mv | append: ' hero__content--mh-' | append: mh
+        assign overlay_style = block.settings.overlay_style | default: 'solid'
+        assign mobile_overlay_style = block.settings.mobile_overlay_style | default: overlay_style
+        assign overlay_class = 'hero__overlay hero__overlay--' | append: overlay_style | append: ' hero__overlay--m-' | append: mobile_overlay_style
+        assign overlay_opacity = block.settings.overlay_opacity | divided_by: 100.0
+        assign mobile_overlay_opacity = block.settings.mobile_overlay_opacity | divided_by: 100.0
       -%}
       <div class="hero__slide{% if forloop.first %} hero__slide--active{% endif %}" {{ block.shopify_attributes }}>
-        {%- if block.settings.image != blank -%}
-          <img
-            src="{{ block.settings.image | image_url: width: 1920 }}"
-            srcset="{{ block.settings.image | image_url: width: 768 }} 768w, {{ block.settings.image | image_url: width: 1440 }} 1440w, {{ block.settings.image | image_url: width: 1920 }} 1920w"
-            sizes="100vw"
-            alt="{{ block.settings.image.alt | escape }}"
-            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-            width="1920"
-            height="1080"
-            class="hero__img"
-          >
+        {%- if block.settings.image != blank or block.settings.image_mobile != blank -%}
+          {%- liquid
+            assign desktop_image = block.settings.image
+            assign mobile_image = block.settings.image_mobile
+            assign fallback_image = desktop_image | default: mobile_image
+          -%}
+          <picture>
+            {%- if mobile_image != blank -%}
+              <source
+                media="(max-width: 768px)"
+                srcset="{{ mobile_image | image_url: width: 480 }} 480w, {{ mobile_image | image_url: width: 768 }} 768w, {{ mobile_image | image_url: width: 960 }} 960w"
+                sizes="100vw"
+              >
+            {%- endif -%}
+            <img
+              src="{{ fallback_image | image_url: width: 1920 }}"
+              srcset="{{ fallback_image | image_url: width: 768 }} 768w, {{ fallback_image | image_url: width: 1440 }} 1440w, {{ fallback_image | image_url: width: 1920 }} 1920w"
+              sizes="100vw"
+              alt="{{ fallback_image.alt | escape }}"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              width="1920"
+              height="1080"
+              class="hero__img"
+            >
+          </picture>
         {%- else -%}
           {{ 'lifestyle-2' | placeholder_svg_tag: 'hero__img hero__img--placeholder' }}
         {%- endif -%}
 
-        <div class="hero__overlay" style="opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};"></div>
+        <div class="{{ overlay_class }}" style="--hero-overlay-opacity: {{ overlay_opacity }}; --hero-overlay-mobile-opacity: {{ mobile_overlay_opacity }};"></div>
 
         <div class="{{ content_class }}">
           <div class="hero__text-block">
@@ -74,11 +95,24 @@
 }
 .hero__slide--active { display: block; }
 
+.hero__slide picture,
+.hero__img,
+.hero__img--placeholder {
+  position: relative;
+  z-index: 0;
+}
+
 .hero__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.hero__slide picture {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .hero__img--placeholder {
   width: 100%;
@@ -89,14 +123,23 @@
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: #000;
+  z-index: 1;
   pointer-events: none;
+  opacity: var(--hero-overlay-opacity);
 }
+
+.hero__overlay--none { background: transparent; }
+.hero__overlay--solid { background: #000; }
+.hero__overlay--gradient-top { background: linear-gradient(180deg, #000 0%, rgba(0,0,0,0) 100%); }
+.hero__overlay--gradient-bottom { background: linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 100%); }
+.hero__overlay--gradient-left { background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0) 100%); }
+.hero__overlay--gradient-right { background: linear-gradient(270deg, #000 0%, rgba(0,0,0,0) 100%); }
 
 /* Conteneur de positionnement — grille 3×3 */
 .hero__content {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   padding: 60px;
 }
@@ -185,6 +228,30 @@
   .hero__content { padding: var(--space-6); }
   .hero__title { font-size: clamp(24px, 8vw, 40px); }
   .hero__text-block { max-width: 100%; }
+  .hero__overlay { opacity: var(--hero-overlay-mobile-opacity); }
+
+  .hero__overlay--m-none { background: transparent; }
+  .hero__overlay--m-solid { background: #000; }
+  .hero__overlay--m-gradient-top { background: linear-gradient(180deg, #000 0%, rgba(0,0,0,0) 100%); }
+  .hero__overlay--m-gradient-bottom { background: linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 100%); }
+  .hero__overlay--m-gradient-left { background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0) 100%); }
+  .hero__overlay--m-gradient-right { background: linear-gradient(270deg, #000 0%, rgba(0,0,0,0) 100%); }
+
+  .hero__content--mv-top    { align-items: flex-start; }
+  .hero__content--mv-center { align-items: center; }
+  .hero__content--mv-bottom { align-items: flex-end; }
+
+  .hero__content--mh-left   { justify-content: flex-start; }
+  .hero__content--mh-center { justify-content: center; }
+  .hero__content--mh-right  { justify-content: flex-end; }
+
+  .hero__content--mh-left   .hero__text-block { align-items: flex-start; text-align: left; }
+  .hero__content--mh-center .hero__text-block { align-items: center;     text-align: center; }
+  .hero__content--mh-right  .hero__text-block { align-items: flex-end;   text-align: right; }
+
+  .hero__content--mv-top {
+    padding-top: max(var(--space-6), 15vh);
+  }
 }
 {% endstylesheet %}
 
@@ -222,7 +289,8 @@
       "type": "slide",
       "name": "Slide",
       "settings": [
-        { "type": "image_picker", "id": "image",   "label": "Image" },
+        { "type": "image_picker", "id": "image",   "label": "Image desktop" },
+        { "type": "image_picker", "id": "image_mobile", "label": "Image mobile" },
         { "type": "text",         "id": "label",   "label": "Sous-titre",  "default": "Nouvelle collection" },
         { "type": "text",         "id": "title",   "label": "Titre",       "default": "DÉCOUVREZ LA SÉLECTION" },
         { "type": "url",          "id": "cta_link","label": "Lien CTA" },
@@ -249,7 +317,58 @@
           ],
           "default": "center"
         },
-        { "type": "range", "id": "overlay_opacity", "label": "Opacité overlay (%)", "min": 0, "max": 70, "step": 5, "default": 30 }
+        {
+          "type": "select",
+          "id": "mobile_vertical_position",
+          "label": "Position verticale mobile",
+          "options": [
+            { "value": "top",    "label": "Haut" },
+            { "value": "center", "label": "Milieu" },
+            { "value": "bottom", "label": "Bas" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "select",
+          "id": "mobile_horizontal_align",
+          "label": "Alignement horizontal mobile",
+          "options": [
+            { "value": "left",   "label": "Gauche" },
+            { "value": "center", "label": "Centre" },
+            { "value": "right",  "label": "Droite" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "select",
+          "id": "overlay_style",
+          "label": "Overlay desktop",
+          "options": [
+            { "value": "solid", "label": "Complet" },
+            { "value": "gradient-top", "label": "Dégradé haut vers bas" },
+            { "value": "gradient-bottom", "label": "Dégradé bas vers haut" },
+            { "value": "gradient-left", "label": "Dégradé gauche vers droite" },
+            { "value": "gradient-right", "label": "Dégradé droite vers gauche" },
+            { "value": "none", "label": "Aucun" }
+          ],
+          "default": "solid"
+        },
+        { "type": "range", "id": "overlay_opacity", "label": "Opacité overlay desktop (%)", "min": 0, "max": 70, "step": 5, "default": 30 },
+        {
+          "type": "select",
+          "id": "mobile_overlay_style",
+          "label": "Overlay mobile",
+          "options": [
+            { "value": "solid", "label": "Complet" },
+            { "value": "gradient-top", "label": "Dégradé haut vers bas" },
+            { "value": "gradient-bottom", "label": "Dégradé bas vers haut" },
+            { "value": "gradient-left", "label": "Dégradé gauche vers droite" },
+            { "value": "gradient-right", "label": "Dégradé droite vers gauche" },
+            { "value": "none", "label": "Aucun" }
+          ],
+          "default": "solid"
+        },
+        { "type": "range", "id": "mobile_overlay_opacity", "label": "Opacité overlay mobile (%)", "min": 0, "max": 70, "step": 5, "default": 30 }
       ]
     }
   ],

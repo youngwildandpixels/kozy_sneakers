@@ -5,15 +5,30 @@
 {%- liquid
   assign coll = section.settings.collection
   assign user_limit = section.settings.products_to_show
+  assign mobile_user_limit = section.settings.products_to_show_mobile | default: user_limit
   assign max_items = 24
   if user_limit > max_items
     assign limit = max_items
   else
     assign limit = user_limit
   endif
+  if mobile_user_limit > max_items
+    assign mobile_limit = max_items
+  else
+    assign mobile_limit = mobile_user_limit
+  endif
+  assign mobile_limit_next = mobile_limit | plus: 1
 -%}
 
-<section class="pmosaic">
+<style>
+  @media (max-width: 768px) {
+    #ProductMosaic-{{ section.id }} .pmosaic__item:nth-child(n+{{ mobile_limit_next }}) {
+      display: none;
+    }
+  }
+</style>
+
+<section class="pmosaic" id="ProductMosaic-{{ section.id }}">
   {%- if section.settings.heading != blank -%}
     <div class="pmosaic__head container">
       <h2 class="pmosaic__title">{{ section.settings.heading }}</h2>
@@ -151,6 +166,15 @@
       "min": 12,
       "max": 32,
       "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "products_to_show_mobile",
+      "label": "Produits à afficher sur mobile",
+      "min": 3,
+      "max": 24,
+      "step": 1,
       "default": 20
     }
   ],

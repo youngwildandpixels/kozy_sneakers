@@ -6,6 +6,15 @@
   assign current = product.selected_or_first_available_variant
   assign first_col = product.collections.first
   assign product_form_id = 'product-form-' | append: section.id
+  assign fulfillment_type = product.metafields.custom.fulfillment_type.value | default: product.metafields.custom.fulfillment_type
+  assign fulfillment_type_downcase = fulfillment_type | downcase
+  assign is_partner_sourced = false
+  if fulfillment_type_downcase == 'scraper' or fulfillment_type_downcase == 'partner' or fulfillment_type_downcase == 'revendeur'
+    assign is_partner_sourced = true
+  endif
+  if product.tags contains 'stockx-sync' or product.tags contains 'scraper' or product.tags contains 'livraison-5-12' or product.tags contains 'revendeur-partenaire'
+    assign is_partner_sourced = true
+  endif
   assign size_option_position = 0
   for option in product.options_with_values
     assign option_name = option.name | downcase
@@ -194,9 +203,23 @@
           <p class="pinfo__stock">Plus que {{ current.inventory_quantity }} produit{% if current.inventory_quantity > 1 %}s{% endif %} en stock</p>
         {%- endif -%}
 
-        <ul class="pinfo__shipping">
-          <li><span class="ship-dot ship-dot--filled"></span>Livraison 24/48h</li>
-          <li><span class="ship-dot"></span>Livraison 5 à 12 jours</li>
+        <ul class="pinfo__shipping" aria-label="Delai de livraison">
+          <li class="pinfo__shipping-option{% unless is_partner_sourced %} is-active{% else %} is-muted{% endunless %}">
+            <span class="ship-dot{% unless is_partner_sourced %} ship-dot--filled{% endunless %}"></span>
+            Livraison 24/48h
+          </li>
+          <li
+            class="pinfo__shipping-option{% if is_partner_sourced %} is-active has-tooltip{% else %} is-muted{% endif %}"
+            {% if is_partner_sourced %}tabindex="0" aria-describedby="shipping-tooltip-{{ section.id }}"{% endif %}
+          >
+            <span class="ship-dot{% if is_partner_sourced %} ship-dot--filled{% endif %}"></span>
+            Livraison 5 à 12 jours
+            {%- if is_partner_sourced -%}
+              <span class="pinfo__shipping-tooltip" id="shipping-tooltip-{{ section.id }}" role="tooltip">
+                Approvisionné via notre réseau de revendeurs partenaires. Jours ouvrés uniquement.
+              </span>
+            {%- endif -%}
+          </li>
         </ul>
 
         <div class="pinfo__buttons">
@@ -565,10 +588,15 @@
   background: var(--color-white);
   box-shadow: 0 3px 0 var(--color-black);
 }
-.size-cell:hover {
+.size-cell:hover:not(.is-sold-out) {
+  background: var(--color-black);
   border-color: var(--color-black);
+  color: var(--color-white);
   transform: translateY(-1px);
   box-shadow: 0 5px 0 var(--color-black);
+}
+.size-cell:hover:not(.is-sold-out) .size-cell__dot--available {
+  background: var(--color-white);
 }
 .size-cell.is-selected {
   background: var(--color-black);
@@ -618,7 +646,8 @@
 }
 .size-cell__compare,
 .size-cell__price {
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
   color: inherit;
   line-height: 1;
 }
@@ -645,10 +674,12 @@
   align-items: center;
   margin-top: var(--space-4);
 }
-.pinfo__shipping li {
+.pinfo__shipping-option {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  min-height: 32px;
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-semibold);
   border: 0;
@@ -657,10 +688,21 @@
   border-radius: 9999px;
   width: fit-content;
 }
-.pinfo__shipping li + li {
+.pinfo__shipping-option.is-muted {
   color: var(--color-gray-500);
   background: var(--color-gray-200);
   opacity: 0.75;
+}
+.pinfo__shipping-option.is-active {
+  color: var(--color-black);
+  background: var(--color-gray-100);
+  opacity: 1;
+}
+.pinfo__shipping-option.has-tooltip {
+  outline: none;
+}
+.pinfo__shipping-option.has-tooltip:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-black);
 }
 .ship-dot {
   width: 6px;
@@ -668,15 +710,42 @@
   border-radius: 50%;
   border: 1px solid var(--color-black);
   display: inline-block;
+  flex: 0 0 auto;
 }
 .ship-dot--filled { background: var(--color-black); }
+.pinfo__shipping-tooltip {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + var(--space-3));
+  z-index: 2;
+  width: min(340px, calc(100vw - 40px));
+  padding: var(--space-4);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 22px;
+  background: var(--color-white);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+  color: var(--color-black);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.2;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(var(--space-1));
+  transition: opacity 0.15s, transform 0.15s;
+}
+.pinfo__shipping-option:hover .pinfo__shipping-tooltip,
+.pinfo__shipping-option:focus .pinfo__shipping-tooltip,
+.pinfo__shipping-option:focus-within .pinfo__shipping-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* Buy buttons */
 .pinfo__buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
-  margin-top: var(--space-2);
+  margin-top: var(--space-4);
 }
 .pinfo__btn {
   width: 100%;
