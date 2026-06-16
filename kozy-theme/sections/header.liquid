@@ -53,7 +53,7 @@
                         {%- if child_link.links != blank -%}
                           <a href="{{ child_link.url }}" class="site-mega__heading">{{ child_link.title }}</a>
                           <ul class="site-mega__list">
-                            {%- for grandchild_link in child_link.links -%}
+                            {%- for grandchild_link in child_link.links limit: 5 -%}
                               <li>
                                 <a href="{{ grandchild_link.url }}" class="site-mega__link">{{ grandchild_link.title }}</a>
                               </li>
