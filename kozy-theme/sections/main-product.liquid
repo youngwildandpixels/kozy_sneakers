@@ -316,8 +316,8 @@
 /* Layout */
 .pmain__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr);
-  gap: clamp(var(--space-10), 5vw, var(--space-20));
+  grid-template-columns: minmax(420px, 0.82fr) minmax(420px, 1fr);
+  gap: clamp(var(--space-8), 4vw, var(--space-16));
   align-items: flex-start;
   padding-top: var(--space-8);
 }
@@ -340,7 +340,8 @@
 
 .pgallery__main {
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
+  max-height: min(640px, calc(100vh - var(--site-header-height, var(--header-height)) - 150px));
   background: var(--color-gray-100);
   overflow: hidden;
 }
@@ -358,7 +359,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: clamp(var(--space-8), 6vw, var(--space-20)) var(--space-10);
+  padding: clamp(var(--space-6), 4vw, var(--space-12)) var(--space-10);
 }
 
 .pgallery__expand {
@@ -1091,6 +1092,9 @@
   var unitBtns = section.querySelectorAll('.size-unit');
   var sizeLabels = section.querySelectorAll('.size-cell__size');
   var productTitle = {{ product.title | json }}.toLowerCase();
+  var productVendor = {{ product.vendor | json }}.toLowerCase();
+  var productSizingText = productVendor + ' ' + productTitle;
+  var usesThirdEuSizing = /adidas|yeezy|samba|gazelle|spezial|campus|superstar|handball|forum|ozweego|ultraboost/.test(productSizingText);
   var sizeProfile = productTitle.indexOf('(w)') !== -1 || productTitle.indexOf("women") !== -1 || productTitle.indexOf("femme") !== -1
     ? 'women'
     : productTitle.indexOf('(gs)') !== -1 || productTitle.indexOf("grade school") !== -1
@@ -1144,6 +1148,33 @@
     '52': { US: '17.5', UK: '16.5', CM: '35.5' },
     '52.5': { US: '18', UK: '17', CM: '36' }
   };
+  var thirdEuByUs = {
+    '4': '36',
+    '4.5': '36.7',
+    '5': '37.3',
+    '5.5': '38',
+    '6': '38.7',
+    '6.5': '39.3',
+    '7': '40',
+    '7.5': '40.7',
+    '8': '41.3',
+    '8.5': '42',
+    '9': '42.7',
+    '9.5': '43.3',
+    '10': '44',
+    '10.5': '44.7',
+    '11': '45.3',
+    '11.5': '46',
+    '12': '46.7',
+    '12.5': '47.3',
+    '13': '48',
+    '13.5': '48.7',
+    '14': '49.3',
+    '14.5': '50',
+    '15': '50.7',
+    '15.5': '51.3',
+    '16': '52'
+  };
 
   function normalizeDecimal(value) {
     var number = Number(value);
@@ -1154,6 +1185,18 @@
 
   function formatSize(value) {
     return String(value).replace('.', ',').replace(/,0$/, '');
+  }
+
+  function formatEuSize(value) {
+    var normalized = normalizeDecimal(value);
+    if (!usesThirdEuSizing) return formatSize(normalized || value);
+    var numericValue = Number(normalized);
+    if (!Number.isFinite(numericValue)) return formatSize(value);
+    var whole = Math.floor(numericValue);
+    var decimal = Math.round((numericValue - whole) * 10);
+    if (decimal === 3) return whole + ' 1/3';
+    if (decimal === 7) return whole + ' 2/3';
+    return String(whole);
   }
 
   function addSizeAmount(value, amount) {
@@ -1213,6 +1256,10 @@
 
     if (sourceUnit === 'EU') {
       return findNearestEuKey(normalizedValue);
+    }
+
+    if (usesThirdEuSizing && sourceUnit === 'US' && thirdEuByUs[normalizedValue]) {
+      return findNearestEuKey(thirdEuByUs[normalizedValue]) || thirdEuByUs[normalizedValue];
     }
 
     var matchedKey = '';
@@ -1294,11 +1341,16 @@
       converted = converted + 'Y';
     }
 
+    if (unit === 'EU' && converted) {
+      return formatEuSize(converted);
+    }
+
     return converted ? formatSize(converted) : rawSize;
   }
 
   function formatSizeWithUnit(rawSize, unit) {
-    return getConvertedSize(rawSize, unit) + ' ' + unit;
+    var convertedSize = getConvertedSize(rawSize, unit);
+    return unit === 'EU' ? unit + ' ' + convertedSize : convertedSize + ' ' + unit;
   }
 
   function updateSizeUnit(unit) {

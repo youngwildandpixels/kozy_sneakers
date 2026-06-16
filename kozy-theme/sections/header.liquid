@@ -69,6 +69,36 @@
 
                   <div class="site-mega__cards" aria-label="Collections mises en avant">
                     {%- assign mega_cards = 0 -%}
+                    {%- if section.settings.mega_card_1_image != blank and section.settings.mega_card_1_collection != blank -%}
+                      {%- assign mega_cards = mega_cards | plus: 1 -%}
+                      <a href="{{ section.settings.mega_card_1_collection.url }}" class="site-mega-card">
+                        <img
+                          src="{{ section.settings.mega_card_1_image | image_url: width: 900 }}"
+                          alt="{{ section.settings.mega_card_1_label | default: section.settings.mega_card_1_collection.title | escape }}"
+                          loading="lazy"
+                          width="900"
+                          height="600"
+                          class="site-mega-card__img"
+                        >
+                        <span class="site-mega-card__title">{{ section.settings.mega_card_1_label | default: section.settings.mega_card_1_collection.title }}</span>
+                      </a>
+                    {%- endif -%}
+
+                    {%- if section.settings.mega_card_2_image != blank and section.settings.mega_card_2_collection != blank -%}
+                      {%- assign mega_cards = mega_cards | plus: 1 -%}
+                      <a href="{{ section.settings.mega_card_2_collection.url }}" class="site-mega-card">
+                        <img
+                          src="{{ section.settings.mega_card_2_image | image_url: width: 900 }}"
+                          alt="{{ section.settings.mega_card_2_label | default: section.settings.mega_card_2_collection.title | escape }}"
+                          loading="lazy"
+                          width="900"
+                          height="600"
+                          class="site-mega-card__img"
+                        >
+                        <span class="site-mega-card__title">{{ section.settings.mega_card_2_label | default: section.settings.mega_card_2_collection.title }}</span>
+                      </a>
+                    {%- endif -%}
+
                     {%- for child_link in link.links -%}
                       {%- if child_link.type == 'collection_link' and child_link.object.image != blank and mega_cards < 2 -%}
                         {%- assign mega_cards = mega_cards | plus: 1 -%}
@@ -307,8 +337,8 @@
   z-index: 90;
   background: var(--color-white);
   border-top: 0.5px solid var(--color-gray-200);
-  border-bottom: 0.5px solid var(--color-gray-200);
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.06);
+  border-bottom: 0;
+  box-shadow: none;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -326,25 +356,28 @@
 
 .site-mega__inner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 24vw);
-  gap: var(--space-12);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);
+  gap: clamp(var(--space-10), 5vw, var(--space-20));
   align-items: start;
-  padding-top: var(--space-8);
-  padding-bottom: var(--space-10);
+  padding-top: 34px;
+  padding-bottom: 40px;
 }
 
 .site-mega__columns {
   display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
-  column-gap: var(--space-10);
-  row-gap: var(--space-10);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  column-gap: clamp(var(--space-8), 3.5vw, var(--space-12));
+  row-gap: 58px;
+  width: 100%;
 }
 
 .site-mega__column {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
+  gap: 11px;
+  min-width: 0;
+  width: 100%;
 }
 
 .site-mega__heading {
@@ -352,6 +385,7 @@
   font-size: 18px;
   font-weight: var(--font-weight-bold);
   line-height: 1.15;
+  margin-bottom: 2px;
 }
 
 .site-mega__list {
@@ -363,7 +397,7 @@
 .site-mega__link,
 .site-mega__all {
   color: var(--color-black);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: var(--font-weight-regular);
   line-height: 1.2;
   text-transform: uppercase;
@@ -377,7 +411,7 @@
 }
 
 .site-mega__all {
-  margin-top: 8px;
+  margin-top: 10px;
   text-transform: none;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -386,6 +420,7 @@
 .site-mega__cards {
   display: grid;
   gap: var(--space-4);
+  align-self: start;
 }
 
 .site-mega__cards:empty {
@@ -396,7 +431,7 @@
   position: relative;
   display: block;
   overflow: hidden;
-  aspect-ratio: 16 / 8.4;
+  aspect-ratio: 390 / 260;
   background: var(--color-gray-100);
 }
 
@@ -414,8 +449,8 @@
 
 .site-mega-card__title {
   position: absolute;
-  left: var(--space-4);
-  bottom: var(--space-4);
+  left: var(--space-6);
+  bottom: var(--space-6);
   color: var(--color-white);
   font-size: 15px;
   font-weight: var(--font-weight-regular);
@@ -894,6 +929,40 @@ body.search-open {
       "id": "menu",
       "label": "Menu principal",
       "default": "main-menu"
+    },
+    {
+      "type": "header",
+      "content": "Mega menu desktop"
+    },
+    {
+      "type": "image_picker",
+      "id": "mega_card_1_image",
+      "label": "Image collection 1"
+    },
+    {
+      "type": "collection",
+      "id": "mega_card_1_collection",
+      "label": "Collection 1"
+    },
+    {
+      "type": "text",
+      "id": "mega_card_1_label",
+      "label": "Libellé collection 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "mega_card_2_image",
+      "label": "Image collection 2"
+    },
+    {
+      "type": "collection",
+      "id": "mega_card_2_collection",
+      "label": "Collection 2"
+    },
+    {
+      "type": "text",
+      "id": "mega_card_2_label",
+      "label": "Libellé collection 2"
     }
   ]
 }
