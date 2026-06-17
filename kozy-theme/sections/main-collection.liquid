@@ -2,6 +2,10 @@
 {%- liquid
   assign paginate_limit = section.settings.products_per_page | default: 24
   assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign subcategory_menu = section.settings.subcategory_menu
+  if subcategory_menu == blank
+    assign subcategory_menu = linklists['main-menu']
+  endif
 -%}
 
 <section class="collection-page">
@@ -104,6 +108,52 @@
           {%- if sort_by != blank -%}
             <input type="hidden" name="sort_by" value="{{ sort_by }}">
           {%- endif -%}
+
+          {%- capture subcategory_links -%}
+            {%- if subcategory_menu.links != blank -%}
+              {%- for top_link in subcategory_menu.links -%}
+                {%- if top_link.type == 'collection_link' and top_link.object.handle == collection.handle and top_link.links != blank -%}
+                  {%- for child_link in top_link.links -%}
+                    <a href="{{ child_link.url }}" class="collection-filters__subcategory-link">{{ child_link.title }}</a>
+                  {%- endfor -%}
+                  {%- break -%}
+                {%- endif -%}
+
+                {%- for child_link in top_link.links -%}
+                  {%- liquid
+                    assign child_matches_collection = false
+                    if child_link.type == 'collection_link' and child_link.object.handle == collection.handle
+                      assign child_matches_collection = true
+                    elsif child_link.url == collection.url
+                      assign child_matches_collection = true
+                    endif
+                  -%}
+                  {%- if child_matches_collection and child_link.links != blank -%}
+                    {%- for grandchild_link in child_link.links -%}
+                      <a href="{{ grandchild_link.url }}" class="collection-filters__subcategory-link">{{ grandchild_link.title }}</a>
+                    {%- endfor -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endcapture -%}
+
+          {%- assign subcategory_links = subcategory_links | strip -%}
+          {%- if subcategory_links != blank -%}
+            <details class="collection-filters__group" open>
+              <summary class="collection-filters__summary">
+                <span>Sous-catégories</span>
+                <svg class="collection-filters__chevron" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <path d="M3 6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="collection-filters__values">
+                {{ subcategory_links }}
+              </div>
+            </details>
+          {%- endif -%}
+
           {%- liquid
             assign has_vendor_filter = false
             assign has_model_filter = false
@@ -647,6 +697,19 @@
   cursor: pointer;
 }
 
+.collection-filters__subcategory-link {
+  display: block;
+  color: var(--color-black);
+  font-size: var(--font-size-body);
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.collection-filters__subcategory-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .collection-filters__choice.is-disabled {
   color: var(--color-gray-300);
   cursor: default;
@@ -1128,6 +1191,12 @@
       "max": 48,
       "step": 4,
       "default": 24
+    },
+    {
+      "type": "link_list",
+      "id": "subcategory_menu",
+      "label": "Menu des sous-catégories",
+      "default": "main-menu"
     }
   ]
 }
