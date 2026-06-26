@@ -6,6 +6,11 @@
   assign current = product.selected_or_first_available_variant
   assign first_col = product.collections.first
   assign product_form_id = 'product-form-' | append: section.id
+  assign product_type_downcase = product.type | downcase
+  assign is_sneaker = false
+  if product_type_downcase == 'sneakers'
+    assign is_sneaker = true
+  endif
   assign fulfillment_type = product.metafields.custom.fulfillment_type.value | default: product.metafields.custom.fulfillment_type
   assign fulfillment_type_downcase = fulfillment_type | downcase
   assign is_partner_sourced = false
@@ -14,6 +19,10 @@
   endif
   if product.tags contains 'stockx-sync' or product.tags contains 'scraper' or product.tags contains 'livraison-5-12' or product.tags contains 'revendeur-partenaire'
     assign is_partner_sourced = true
+  endif
+  assign pickup_available = false
+  if current.available and is_partner_sourced == false
+    assign pickup_available = true
   endif
   assign size_option_position = 0
   for option in product.options_with_values
@@ -152,8 +161,8 @@
         <button type="button" class="size-unit" data-unit="US" aria-pressed="false">US</button>
         <button type="button" class="size-unit" data-unit="UK" aria-pressed="false">UK</button>
         <button type="button" class="size-unit" data-unit="CM" aria-pressed="false">CM</button>
-        {%- if section.settings.size_guide_url != blank -%}
-          <a href="{{ section.settings.size_guide_url }}" class="pinfo__size-guide">Guide des tailles</a>
+        {%- if is_sneaker -%}
+          <button type="button" class="pinfo__size-guide" data-size-guide-open>Guide des tailles</button>
         {%- endif -%}
       </div>
 
@@ -222,12 +231,12 @@
           </li>
         </ul>
 
-        <div class="pinfo__buttons">
+        <div class="pinfo__buttons{% if pickup_available %} has-mobile-pickup{% endif %}">
           <button type="submit" name="add" class="btn btn--primary pinfo__btn"{% unless current.available %} disabled{% endunless %}>
             {%- if current.available -%}Ajouter au panier{%- else -%}Rupture de stock{%- endif -%}
           </button>
-          <button type="submit" name="properties[Mode]" value="Retrait en boutique" class="btn pinfo__btn pinfo__btn--pickup">
-            Retirer en boutique
+          <button type="submit" name="properties[Mode]" value="Retrait en boutique" class="btn pinfo__btn pinfo__btn--pickup"{% unless pickup_available %} disabled{% endunless %}>
+            {%- if pickup_available -%}Retirer en boutique{%- else -%}Retrait indisponible{%- endif -%}
           </button>
         </div>
 
@@ -268,6 +277,33 @@
       {%- endif -%}
     </div>
   </div>
+
+  {%- if is_sneaker -%}
+    <div class="size-guide-modal" aria-hidden="true" data-size-guide-modal>
+      <button class="size-guide-modal__backdrop" type="button" data-size-guide-close aria-label="Fermer le guide des tailles"></button>
+      <div class="size-guide-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="size-guide-title-{{ section.id }}">
+        <button class="size-guide-modal__close" type="button" data-size-guide-close aria-label="Fermer le guide des tailles">
+          <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+            <path d="M4 4l14 14M18 4L4 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <h2 class="size-guide-modal__title" id="size-guide-title-{{ section.id }}">Guide des tailles</h2>
+        <div class="size-guide-modal__table-wrap">
+          <table class="size-guide-modal__table">
+            <thead>
+              <tr>
+                <th scope="col">EU</th>
+                <th scope="col">US</th>
+                <th scope="col">UK</th>
+                <th scope="col">CM</th>
+              </tr>
+            </thead>
+            <tbody data-size-guide-body></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
 
   <div class="pgallery-modal" aria-hidden="true" data-gallery-modal>
     <button class="pgallery-modal__backdrop" type="button" data-gallery-close aria-label="Fermer l'image"></button>
@@ -562,8 +598,100 @@
 
 .pinfo__size-guide {
   margin-left: auto;
+  border: 0;
+  background: none;
+  color: var(--color-black);
+  cursor: pointer;
   font-size: var(--font-size-small);
+  padding: 0;
   text-decoration: underline;
+}
+
+.size-guide-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+}
+
+.size-guide-modal.is-open {
+  display: flex;
+}
+
+.size-guide-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.size-guide-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(960px, calc(100vw - var(--space-10)));
+  max-height: min(720px, calc(100vh - var(--space-12)));
+  background: var(--color-white);
+  padding: var(--space-10);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.16);
+  overflow: hidden;
+}
+
+.size-guide-modal__close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--color-black);
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-black);
+}
+
+.size-guide-modal__close:hover {
+  opacity: 0.6;
+}
+
+.size-guide-modal__title {
+  margin: 0 0 var(--space-6);
+  font-size: 28px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+}
+
+.size-guide-modal__table-wrap {
+  max-height: min(520px, calc(100vh - 260px));
+  overflow: auto;
+  border-right: 1px solid var(--color-gray-200);
+}
+
+.size-guide-modal__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-body);
+}
+
+.size-guide-modal__table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-gray-100);
+  color: var(--color-black);
+  font-weight: var(--font-weight-bold);
+}
+
+.size-guide-modal__table th,
+.size-guide-modal__table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-gray-200);
+  text-align: center;
 }
 
 /* Size grid avec prix */
@@ -801,7 +929,7 @@
 
 @media (max-width: 768px) {
   .pmain {
-    padding-bottom: var(--space-10);
+    padding-bottom: calc(198px + env(safe-area-inset-bottom));
   }
 
   .breadcrumb {
@@ -921,7 +1049,79 @@
   }
 
   .pinfo__buttons {
+    position: relative;
     grid-template-columns: 1fr;
+  }
+
+  .pinfo__buttons::before {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1099;
+    height: calc(78px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-gray-200);
+    background: var(--color-white);
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.08);
+  }
+
+  .pinfo__buttons.has-mobile-pickup::before {
+    height: calc(144px + env(safe-area-inset-bottom));
+  }
+
+  .pinfo__btn {
+    min-height: 54px;
+  }
+
+  .pinfo__btn.btn--primary {
+    position: fixed;
+    left: var(--container-padding);
+    right: var(--container-padding);
+    bottom: 0;
+    z-index: 1100;
+    width: auto;
+    margin: 0;
+    min-height: 54px;
+    padding: 15px var(--space-6);
+    transform: translateY(calc((var(--space-3) + env(safe-area-inset-bottom)) * -1));
+  }
+
+  .pinfo__buttons.has-mobile-pickup .pinfo__btn--pickup {
+    position: fixed;
+    left: var(--container-padding);
+    right: var(--container-padding);
+    bottom: 0;
+    z-index: 1100;
+    width: auto;
+    margin: 0;
+    min-height: 54px;
+    transform: translateY(calc((var(--space-6) + 54px + env(safe-area-inset-bottom)) * -1));
+  }
+
+  .size-guide-modal {
+    padding: var(--space-4);
+    align-items: flex-end;
+  }
+
+  .size-guide-modal__dialog {
+    width: 100%;
+    max-height: calc(100vh - var(--space-8));
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .size-guide-modal__title {
+    padding-right: var(--space-10);
+    font-size: 24px;
+  }
+
+  .size-guide-modal__table-wrap {
+    max-height: calc(100vh - 210px);
+  }
+
+  .size-guide-modal__table th,
+  .size-guide-modal__table td {
+    padding: var(--space-3);
   }
 
 }
@@ -962,6 +1162,10 @@
   var modal = section.querySelector('[data-gallery-modal]');
   var modalImg = section.querySelector('[data-gallery-modal-img]');
   var closeButtons = section.querySelectorAll('[data-gallery-close]');
+  var sizeGuideOpen = section.querySelector('[data-size-guide-open]');
+  var sizeGuideModal = section.querySelector('[data-size-guide-modal]');
+  var sizeGuideCloseButtons = section.querySelectorAll('[data-size-guide-close]');
+  var sizeGuideBody = section.querySelector('[data-size-guide-body]');
 
   function setZoomImage(src) {
     if (!modalImg || !src) return;
@@ -980,6 +1184,20 @@
     if (!modal) return;
     modal.classList.remove('is-open');
     modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.overflow = '';
+  }
+
+  function openSizeGuide() {
+    if (!sizeGuideModal) return;
+    sizeGuideModal.classList.add('is-open');
+    sizeGuideModal.setAttribute('aria-hidden', 'false');
+    document.documentElement.style.overflow = 'hidden';
+  }
+
+  function closeSizeGuide() {
+    if (!sizeGuideModal) return;
+    sizeGuideModal.classList.remove('is-open');
+    sizeGuideModal.setAttribute('aria-hidden', 'true');
     document.documentElement.style.overflow = '';
   }
 
@@ -1084,8 +1302,19 @@
     button.addEventListener('click', closeZoom);
   });
 
+  if (sizeGuideOpen) {
+    sizeGuideOpen.addEventListener('click', openSizeGuide);
+  }
+
+  sizeGuideCloseButtons.forEach(function (button) {
+    button.addEventListener('click', closeSizeGuide);
+  });
+
   document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') closeZoom();
+    if (event.key === 'Escape') {
+      closeZoom();
+      closeSizeGuide();
+    }
   });
 
   // Size unit conversion
@@ -1353,6 +1582,34 @@
     return unit === 'EU' ? unit + ' ' + convertedSize : convertedSize + ' ' + unit;
   }
 
+  function formatGuideValue(value) {
+    return String(value || '').replace(',', '.');
+  }
+
+  function shouldShowGuideSize(key) {
+    var numericKey = Number(key);
+    if (!Number.isFinite(numericKey)) return false;
+    var decimal = Math.round((numericKey - Math.floor(numericKey)) * 10);
+    return usesThirdEuSizing ? decimal === 0 || decimal === 3 || decimal === 7 : decimal === 0 || decimal === 5;
+  }
+
+  function populateSizeGuide() {
+    if (!sizeGuideBody) return;
+    sizeGuideBody.innerHTML = '';
+    Object.keys(sizeMap)
+      .filter(shouldShowGuideSize)
+      .sort(function (a, b) { return Number(a) - Number(b); })
+      .forEach(function (key) {
+        var row = document.createElement('tr');
+        ['EU', 'US', 'UK', 'CM'].forEach(function (unit) {
+          var cell = document.createElement('td');
+          cell.textContent = formatGuideValue(getConvertedSize(key, unit));
+          row.appendChild(cell);
+        });
+        sizeGuideBody.appendChild(row);
+      });
+  }
+
   function updateSizeUnit(unit) {
     sizeLabels.forEach(function (label) {
       var sourceSize = label.getAttribute('data-size-source') || label.dataset.sizeSource || label.textContent.trim();
@@ -1362,6 +1619,7 @@
     });
   }
 
+  populateSizeGuide();
   updateSizeUnit('EU');
 
   unitBtns.forEach(function (b) {

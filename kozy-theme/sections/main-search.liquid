@@ -1,6 +1,7 @@
 {%- comment -%} Main Search — design aligné sur les pages collection {%- endcomment -%}
 {%- liquid
   assign paginate_limit = section.settings.results_per_page | default: 24
+  assign collection_menu = section.settings.collection_menu
 -%}
 
 <section class="collection-page search-page">
@@ -34,13 +35,21 @@
         </svg>
       </button>
       <nav class="collection-page__collections" data-collections-track aria-label="Collections">
-        {%- for collection_link in collections -%}
-          {%- unless collection_link.handle == 'frontpage' -%}
+        {%- if collection_menu.links != blank -%}
+          {%- for collection_link in collection_menu.links -%}
             <a href="{{ collection_link.url }}" class="collection-page__collection-pill">
               {{ collection_link.title | escape }}
             </a>
-          {%- endunless -%}
-        {%- endfor -%}
+          {%- endfor -%}
+        {%- else -%}
+          {%- for collection_link in collections -%}
+            {%- unless collection_link.handle == 'frontpage' -%}
+              <a href="{{ collection_link.url }}" class="collection-page__collection-pill">
+                {{ collection_link.title | escape }}
+              </a>
+            {%- endunless -%}
+          {%- endfor -%}
+        {%- endif -%}
       </nav>
       <button class="collection-page__collections-arrow collection-page__collections-arrow--next" type="button" data-collections-next aria-label="Collections suivantes">
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
@@ -191,6 +200,17 @@
 }
 
 .collection-page__collections::-webkit-scrollbar {
+  display: none;
+}
+
+.collection-page__collections.is-centered {
+  justify-content: center;
+  overflow-x: visible;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.collection-page__collections-wrap.is-centered .collection-page__collections-arrow {
   display: none;
 }
 
@@ -459,10 +479,16 @@
   var collectionsTrack = section.querySelector('[data-collections-track]');
   var collectionsPrev = section.querySelector('[data-collections-prev]');
   var collectionsNext = section.querySelector('[data-collections-next]');
+  var collectionsWrap = collectionsTrack ? collectionsTrack.closest('.collection-page__collections-wrap') : null;
 
   if (collectionsTrack && collectionsPrev && collectionsNext) {
     function updateCollectionArrows() {
       var maxScroll = collectionsTrack.scrollWidth - collectionsTrack.clientWidth;
+      var isScrollable = maxScroll > 1;
+      collectionsTrack.classList.toggle('is-centered', !isScrollable);
+      if (collectionsWrap) {
+        collectionsWrap.classList.toggle('is-centered', !isScrollable);
+      }
       collectionsPrev.disabled = collectionsTrack.scrollLeft <= 1;
       collectionsNext.disabled = collectionsTrack.scrollLeft >= maxScroll - 1;
     }
@@ -494,6 +520,12 @@
   "name": "Recherche",
   "tag": "section",
   "settings": [
+    {
+      "type": "link_list",
+      "id": "collection_menu",
+      "label": "Menu des pills collections",
+      "info": "Contrôle l'ordre des catégories affichées en pills. Laisser vide pour afficher toutes les collections."
+    },
     {
       "type": "range",
       "id": "results_per_page",
