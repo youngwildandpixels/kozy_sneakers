@@ -1,0 +1,55 @@
+{%- comment -%} Structured data for search engines {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": {{ shop.name | json }},
+  "url": {{ shop.url | json }}
+  {%- if settings.logo != blank -%},
+  "logo": {{ settings.logo | image_url: width: 600 | prepend: 'https:' | json }}
+  {%- endif -%}
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": {{ shop.name | json }},
+  "url": {{ shop.url | json }},
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {{ shop.url | append: routes.search_url | append: '?q={search_term_string}' | json }},
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+{%- if template.name == 'product' and product != blank -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  "description": {{ product.description | strip_html | json }},
+  "url": {{ canonical_url | json }},
+  {%- if product.featured_image -%}
+  "image": [
+    {{ product.featured_image | image_url: width: 1200 | prepend: 'https:' | json }}
+  ],
+  {%- endif -%}
+  "brand": {
+    "@type": "Brand",
+    "name": {{ product.vendor | default: shop.name | json }}
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": {{ canonical_url | json }},
+    "priceCurrency": {{ cart.currency.iso_code | json }},
+    "price": {{ product.selected_or_first_available_variant.price | divided_by: 100.0 | json }},
+    "availability": "https://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+}
+</script>
+{%- endif -%}

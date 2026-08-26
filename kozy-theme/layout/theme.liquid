@@ -20,11 +20,13 @@
     {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
   </title>
 
-  {%- if page_description -%}
-    <meta name="description" content="{{ page_description | escape }}">
+  {%- assign seo_description = page_description | default: shop.description -%}
+  {%- if seo_description != blank -%}
+    <meta name="description" content="{{ seo_description | strip_html | escape }}">
   {%- endif -%}
 
   {%- render 'meta-tags' -%}
+  {%- render 'structured-data' -%}
 
   {{ 'base.css' | asset_url | stylesheet_tag }}
   {{ 'component-product-card.css' | asset_url | stylesheet_tag }}
