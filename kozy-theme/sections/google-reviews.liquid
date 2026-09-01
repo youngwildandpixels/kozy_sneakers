@@ -1,0 +1,654 @@
+{%- comment -%}
+  Google Reviews — met en avant des avis Google depuis des metaobjects.
+
+  Metaobject recommande : google_review
+  Champs : reviewer_name, rating, body, date, location, review_url, avatar
+{%- endcomment -%}
+{%- liquid
+  assign source = section.settings.source
+  assign metaobject_type = section.settings.metaobject_type | default: 'google_review'
+  assign reviews_limit = section.settings.reviews_to_show
+  assign google_reviews = shop.metaobjects[metaobject_type].values
+  assign has_metaobject_reviews = false
+  assign business_image = section.settings.business_image
+
+  if source == 'metaobjects' and google_reviews != blank
+    assign has_metaobject_reviews = true
+  endif
+-%}
+
+<section class="google-reviews" id="GoogleReviews-{{ section.id }}">
+  <div class="google-reviews__inner container">
+    <aside class="google-reviews__summary" aria-label="{{ section.settings.average_rating }} sur 5 sur Google">
+      <div class="google-reviews__business-media">
+        {%- if business_image != blank -%}
+          {{
+            business_image
+            | image_url: width: 160
+            | image_tag:
+              loading: 'lazy',
+              widths: '80, 120, 160',
+              sizes: '64px',
+              class: 'google-reviews__business-img',
+              alt: business_image.alt
+          }}
+        {%- else -%}
+          <span class="google-reviews__business-fallback" aria-hidden="true">K</span>
+        {%- endif -%}
+      </div>
+      <div class="google-reviews__business-copy">
+        <p class="google-reviews__business-name">{{ section.settings.business_name }}</p>
+        <div class="google-reviews__stars" aria-hidden="true">
+          {%- for i in (1..5) -%}
+            <span>★</span>
+          {%- endfor -%}
+        </div>
+        <p class="google-reviews__count">{{ section.settings.review_count }} Google Reviews</p>
+      </div>
+    </aside>
+
+    <div class="google-reviews__carousel">
+      <button class="google-reviews__arrow google-reviews__arrow--prev" type="button" data-google-reviews-prev aria-label="Avis précédents">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+
+      <div class="google-reviews__track" data-google-reviews-track>
+        <div class="google-reviews__list">
+          {%- if has_metaobject_reviews -%}
+            {%- for review in google_reviews limit: reviews_limit -%}
+              {%- liquid
+                assign reviewer_name = review.reviewer_name.value | default: review.reviewer_name
+                assign rating = review.rating.value | default: review.rating | default: 5 | plus: 0
+                assign body = review.body.value | default: review.body
+                assign date = review.date.value | default: review.date
+                assign location = review.location.value | default: review.location
+                assign review_url = review.review_url.value | default: review.review_url
+                assign avatar = review.avatar.value | default: review.avatar
+              -%}
+              <article class="google-review" {{ review.shopify_attributes }}>
+                <div class="google-review__top">
+                  <div class="google-review__author">
+                    <div class="google-review__avatar">
+                      {%- if avatar != blank -%}
+                        {{
+                          avatar
+                          | image_url: width: 96
+                          | image_tag:
+                            loading: 'lazy',
+                            widths: '48, 72, 96',
+                            sizes: '48px',
+                            alt: reviewer_name
+                        }}
+                      {%- else -%}
+                        <span>{{ reviewer_name | default: 'Client Google' | slice: 0 | upcase }}</span>
+                      {%- endif -%}
+                    </div>
+                    <div>
+                      <h3 class="google-review__name">{{ reviewer_name | default: 'Client Google' }}</h3>
+                      {%- if date != blank or location != blank -%}
+                        <p class="google-review__meta">
+                          {%- if date != blank -%}{{ date }}{%- endif -%}
+                          {%- if date != blank and location != blank -%}<span aria-hidden="true"> · </span>{%- endif -%}
+                          {%- if location != blank -%}{{ location }}{%- endif -%}
+                        </p>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                  <span class="google-review__google" aria-hidden="true">G</span>
+                </div>
+                <div class="google-review__stars" aria-label="{{ rating }} sur 5">
+                  {%- for i in (1..5) -%}
+                    <span class="{% if i <= rating %}is-filled{% endif %}">★</span>
+                  {%- endfor -%}
+                </div>
+                {%- if body != blank -%}
+                  <div class="google-review__body">{{ body }}</div>
+                {%- endif -%}
+                {%- if review_url != blank -%}
+                  <a href="{{ review_url }}" class="google-review__link" target="_blank" rel="noopener">Read More</a>
+                {%- endif -%}
+              </article>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for block in section.blocks limit: reviews_limit -%}
+              {%- if block.type == 'review' -%}
+                {%- assign rating = block.settings.rating | plus: 0 -%}
+                <article class="google-review" {{ block.shopify_attributes }}>
+                  <div class="google-review__top">
+                    <div class="google-review__author">
+                      <div class="google-review__avatar">
+                        <span>{{ block.settings.reviewer_name | default: 'Client Google' | slice: 0 | upcase }}</span>
+                      </div>
+                      <div>
+                        <h3 class="google-review__name">{{ block.settings.reviewer_name | default: 'Client Google' }}</h3>
+                        {%- if block.settings.date != blank or block.settings.location != blank -%}
+                          <p class="google-review__meta">
+                            {%- if block.settings.date != blank -%}{{ block.settings.date }}{%- endif -%}
+                            {%- if block.settings.date != blank and block.settings.location != blank -%}<span aria-hidden="true"> · </span>{%- endif -%}
+                            {%- if block.settings.location != blank -%}{{ block.settings.location }}{%- endif -%}
+                          </p>
+                        {%- endif -%}
+                      </div>
+                    </div>
+                    <span class="google-review__google" aria-hidden="true">G</span>
+                  </div>
+                  <div class="google-review__stars" aria-label="{{ rating }} sur 5">
+                    {%- for i in (1..5) -%}
+                      <span class="{% if i <= rating %}is-filled{% endif %}">★</span>
+                    {%- endfor -%}
+                  </div>
+                  {%- if block.settings.body != blank -%}
+                    <div class="google-review__body">{{ block.settings.body }}</div>
+                  {%- endif -%}
+                  {%- if block.settings.review_url != blank -%}
+                    <a href="{{ block.settings.review_url }}" class="google-review__link" target="_blank" rel="noopener">Read More</a>
+                  {%- endif -%}
+                </article>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+
+      <button class="google-reviews__arrow google-reviews__arrow--next" type="button" data-google-reviews-next aria-label="Avis suivants">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </button>
+
+      <div class="google-reviews__dots" data-google-reviews-dots aria-hidden="true">
+        <button class="is-active" type="button" data-google-reviews-dot data-index="0" tabindex="-1"></button>
+        <button type="button" data-google-reviews-dot data-index="1" tabindex="-1"></button>
+        <button type="button" data-google-reviews-dot data-index="2" tabindex="-1"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+.google-reviews {
+  padding: var(--space-12) 0;
+  border-top: 1px solid var(--color-gray-100);
+  background: var(--color-white);
+  overflow: hidden;
+}
+
+.google-reviews__inner {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.google-reviews__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.google-reviews__business-media {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--color-gray-100);
+}
+
+.google-reviews__business-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.google-reviews__business-fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  background: var(--color-black);
+  color: var(--color-white);
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+}
+
+.google-reviews__business-copy {
+  min-width: 0;
+}
+
+.google-reviews__business-name {
+  margin: 0 0 2px;
+  color: var(--color-black);
+  font-size: 15px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.15;
+}
+
+.google-reviews__stars {
+  display: flex;
+  gap: 1px;
+  color: #fbbc04;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.google-reviews__count {
+  margin: 2px 0 0;
+  color: var(--color-black);
+  font-size: 15px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+.google-reviews__carousel {
+  position: relative;
+  min-width: 0;
+}
+
+.google-reviews__track {
+  overflow-x: auto;
+  padding-bottom: var(--space-6);
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.google-reviews__track::-webkit-scrollbar {
+  display: none;
+}
+
+.google-reviews__list {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.google-review {
+  display: flex;
+  flex: 0 0 min(390px, 38vw);
+  min-height: 238px;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: 8px;
+  background: #f6f6f8;
+  color: var(--color-black);
+  scroll-snap-align: start;
+}
+
+.google-review__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.google-review__author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.google-review__avatar {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #0b63ce;
+  color: var(--color-white);
+  font-size: 20px;
+  font-weight: var(--font-weight-medium);
+}
+
+.google-review__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.google-review__name {
+  margin: 0;
+  overflow: hidden;
+  color: #333333;
+  font-size: 17px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.google-review__meta {
+  margin: 2px 0 0;
+  color: #777777;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.google-review__google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  color: #4285f4;
+  font-size: 21px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+.google-review__stars {
+  display: flex;
+  gap: 1px;
+  color: var(--color-gray-300);
+  font-size: 21px;
+  line-height: 1;
+}
+
+.google-review__stars .is-filled {
+  color: #fbbc04;
+}
+
+.google-review__body {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #333333;
+  font-size: 17px;
+  font-weight: var(--font-weight-regular);
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.google-review__body p {
+  margin: 0;
+}
+
+.google-review__link {
+  width: fit-content;
+  margin-top: auto;
+  color: #858585;
+  font-size: 16px;
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
+}
+
+.google-review__link:hover {
+  color: var(--color-black);
+  opacity: 1;
+}
+
+.google-reviews__arrow {
+  position: absolute;
+  top: calc(50% - 18px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #777777;
+  transform: translateY(-50%);
+}
+
+.google-reviews__arrow svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.google-reviews__arrow--prev {
+  left: -34px;
+}
+
+.google-reviews__arrow--next {
+  right: -34px;
+}
+
+.google-reviews__arrow:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.google-reviews__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: flex;
+  gap: 10px;
+  transform: translateX(-50%);
+}
+
+.google-reviews__dots button {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d2d2d2;
+}
+
+.google-reviews__dots button.is-active {
+  background: #777777;
+}
+
+@media (max-width: 768px) {
+  .google-reviews {
+    padding: var(--space-8) 0;
+  }
+
+  .google-reviews__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  .google-reviews__summary {
+    padding: 0 var(--space-5);
+  }
+
+  .google-reviews__track {
+    margin: 0 calc(var(--container-padding) * -1);
+    padding: 0 var(--container-padding) var(--space-6);
+  }
+
+  .google-review {
+    flex-basis: 84vw;
+    min-height: 236px;
+    padding: var(--space-5);
+  }
+
+  .google-reviews__arrow {
+    display: none;
+  }
+}
+{% endstylesheet %}
+
+<script>
+(function () {
+  var section = document.getElementById('GoogleReviews-{{ section.id }}');
+  if (!section) return;
+
+  var track = section.querySelector('[data-google-reviews-track]');
+  var prev = section.querySelector('[data-google-reviews-prev]');
+  var next = section.querySelector('[data-google-reviews-next]');
+  var dots = section.querySelectorAll('[data-google-reviews-dot]');
+  if (!track || !prev || !next) return;
+
+  function getMaxScroll() {
+    return Math.max(0, track.scrollWidth - track.clientWidth);
+  }
+
+  function getStep() {
+    var card = track.querySelector('.google-review');
+    if (!card) return Math.round(track.clientWidth * 0.8);
+    var gap = parseFloat(getComputedStyle(track.querySelector('.google-reviews__list')).columnGap) || 0;
+    return Math.round(card.offsetWidth + gap);
+  }
+
+  function updateControls() {
+    var maxScroll = getMaxScroll();
+    var isScrollable = maxScroll > 1;
+    prev.hidden = !isScrollable;
+    next.hidden = !isScrollable;
+    prev.disabled = track.scrollLeft <= 1;
+    next.disabled = track.scrollLeft >= maxScroll - 1;
+
+    var progress = maxScroll > 0 ? track.scrollLeft / maxScroll : 0;
+    var activeIndex = Math.min(dots.length - 1, Math.round(progress * (dots.length - 1)));
+    dots.forEach(function (dot, index) {
+      dot.classList.toggle('is-active', index === activeIndex);
+    });
+  }
+
+  prev.addEventListener('click', function () {
+    track.scrollBy({ left: -getStep(), behavior: 'smooth' });
+  });
+
+  next.addEventListener('click', function () {
+    track.scrollBy({ left: getStep(), behavior: 'smooth' });
+  });
+
+  dots.forEach(function (dot) {
+    dot.addEventListener('click', function () {
+      track.scrollTo({ left: getMaxScroll() * (Number(dot.dataset.index) / Math.max(1, dots.length - 1)), behavior: 'smooth' });
+    });
+  });
+
+  track.addEventListener('scroll', updateControls);
+  window.addEventListener('resize', updateControls);
+  updateControls();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Google Reviews",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "source",
+      "label": "Source des avis",
+      "default": "metaobjects",
+      "options": [
+        { "value": "metaobjects", "label": "Metaobjects" },
+        { "value": "blocks", "label": "Blocs manuels" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "metaobject_type",
+      "label": "Handle du metaobject",
+      "default": "google_review",
+      "info": "Doit correspondre au type de metaobject dans l'admin Shopify."
+    },
+    {
+      "type": "text",
+      "id": "business_name",
+      "label": "Nom de la fiche Google",
+      "default": "Kozy Sneakers"
+    },
+    {
+      "type": "image_picker",
+      "id": "business_image",
+      "label": "Image fiche Google"
+    },
+    {
+      "type": "text",
+      "id": "average_rating",
+      "label": "Note moyenne",
+      "default": "4.9"
+    },
+    {
+      "type": "text",
+      "id": "review_count",
+      "label": "Nombre d'avis",
+      "default": "252"
+    },
+    {
+      "type": "range",
+      "id": "reviews_to_show",
+      "label": "Avis à afficher",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Texte du bouton",
+      "default": "Voir tous les avis"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Lien Google Reviews"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Avis manuel",
+      "settings": [
+        {
+          "type": "text",
+          "id": "reviewer_name",
+          "label": "Nom",
+          "default": "Client Google"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Note",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Commentaire",
+          "default": "<p>Super boutique, équipe accueillante et très bons conseils.</p>"
+        },
+        {
+          "type": "text",
+          "id": "date",
+          "label": "Date",
+          "default": "Il y a 2 semaines"
+        },
+        {
+          "type": "text",
+          "id": "location",
+          "label": "Ville"
+        },
+        {
+          "type": "url",
+          "id": "review_url",
+          "label": "Lien de l'avis"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Google Reviews",
+      "blocks": [
+        { "type": "review" },
+        { "type": "review", "settings": { "reviewer_name": "Client Google", "date": "Il y a 1 mois", "body": "<p>Très bonne expérience, livraison rapide et produit conforme.</p>" } },
+        { "type": "review", "settings": { "reviewer_name": "Client Google", "date": "Il y a 3 mois", "body": "<p>Accueil au top et sélection de sneakers vraiment soignée.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

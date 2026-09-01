@@ -50,9 +50,57 @@
 
 .product-card__media .badge {
   position: absolute;
-  top: var(--space-2);
+  bottom: var(--space-2);
   left: var(--space-2);
   z-index: 1;
+}
+
+.product-card__stickers {
+  position: absolute;
+  top: var(--space-2);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.product-card__stickers--left {
+  left: var(--space-3);
+  align-items: flex-start;
+}
+
+.product-card__stickers--right {
+  right: var(--space-2);
+  align-items: flex-end;
+}
+
+.product-card__sticker {
+  display: block;
+  width: clamp(42px, 5vw, 72px);
+  height: auto;
+}
+
+.product-card__pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  border: 1px solid var(--color-black);
+  border-radius: 9999px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  padding: 0 9px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.product-card__pill--best {
+  background: var(--color-black);
+  color: var(--color-white);
 }
 
 /* Quick-add pill (hover) */
@@ -76,11 +124,11 @@
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.product-card:hover .product-card__quick-add {
-  opacity: 1;
-  transform: translate(-50%, 0);
-  pointer-events: auto;
-}
+  .product-card:hover .product-card__quick-add {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+  }
 
 .product-card__info {
   padding: var(--space-4) var(--space-3) var(--space-3);

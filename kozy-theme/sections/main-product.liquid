@@ -6,12 +6,24 @@
   assign current = product.selected_or_first_available_variant
   assign first_col = product.collections.first
   assign product_form_id = 'product-form-' | append: section.id
+  assign google_reviews_fallback_url = 'https://www.google.com/search?sca_esv=492d5a6e2d17a115&rlz=1C5CHFA_enFR1149FR1149&sxsrf=APpeQnslYDSVUs9tOybbwKnOz8zlSuvT0Q:1788269080910&q=kozy+sneakers+avis&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_0eI5CCQItwg5Po1kDvrQK4EHNxWZ4ONOx26PI5buyY8pQMiw6SITwJS8gGy8KQZtAntAes%3D&uds=AJ5uw1-YMpuyF7uCL7tivJR8dYckeVbchtmlkVlgeMm2DkRcVVp4HCIru9GTyez6tCDZGGCNkIOkupmNcQs6rkZ7Sqz9pclWXBrAeBsTZYTdPY-IQXE-V4U&sa=X&ved=2ahUKEwih_NG6vc2WAxVFaqQEHUCjHjgQ3PALegQILhAF&biw=1672&bih=898&dpr=1'
+  assign google_reviews_url = section.settings.google_reviews_url | default: google_reviews_fallback_url
+  assign sticker_limited_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/edition_limite.png?v=1788270525'
+  assign sticker_24_48_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/24_48_stickers.png?v=1788270350'
+  assign sticker_store_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/03_dispo_boutique.png?v=1788270036'
+  assign sticker_top_sales_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/11_top_ventes.png?v=1788270941'
   assign product_type_downcase = product.type | downcase
   assign is_sneaker = false
   if product_type_downcase == 'sneakers'
     assign is_sneaker = true
   endif
   assign fulfillment_type = product.metafields.custom.fulfillment_type.value | default: product.metafields.custom.fulfillment_type
+  assign style_id = product.metafields.custom.style_id.value | default: product.metafields.custom.style_id
+  if style_id == blank and product.description contains 'Style ID'
+    assign style_id_parts = product.description | split: 'Style ID'
+    assign style_id_after_label = style_id_parts[1] | strip_html | replace: ':', '' | strip
+    assign style_id = style_id_after_label | split: ' ' | first
+  endif
   assign fulfillment_type_downcase = fulfillment_type | downcase
   assign is_partner_sourced = false
   if fulfillment_type_downcase == 'scraper' or fulfillment_type_downcase == 'partner' or fulfillment_type_downcase == 'revendeur'
@@ -23,6 +35,30 @@
   assign pickup_available = false
   if current.available and is_partner_sourced == false
     assign pickup_available = true
+  endif
+  assign is_new_product = false
+  assign is_best_seller_product = false
+  assign is_top_sales_product = false
+  for collection in product.collections
+    if collection.handle == 'nouveautes' or collection.handle == 'nouveaute' or collection.handle == 'new'
+      assign is_new_product = true
+    endif
+    if collection.handle == 'best-seller' or collection.handle == 'best-sellers' or collection.handle == 'best-selelr' or collection.handle == 'best-selelrs' or collection.handle == 'meilleures-ventes'
+      assign is_best_seller_product = true
+    endif
+    if collection.handle == 'top-ventes' or collection.handle == 'top-vente' or collection.handle == 'top-sales'
+      assign is_top_sales_product = true
+    endif
+  endfor
+  if product.tags contains 'best-seller' or product.tags contains 'best seller' or product.tags contains 'best-sellers' or product.tags contains 'best-selelr' or product.tags contains 'best selelr'
+    assign is_best_seller_product = true
+  endif
+  if product.tags contains 'top-ventes' or product.tags contains 'top vente' or product.tags contains 'top-vente'
+    assign is_top_sales_product = true
+  endif
+  assign is_limited_product = false
+  if product.tags contains 'edition-limitee' or product.tags contains 'édition limitée' or product.tags contains 'rare' or product.tags contains 'cote' or product.tags contains 'coté'
+    assign is_limited_product = true
   endif
   assign size_option_position = 0
   for option in product.options_with_values
@@ -55,6 +91,25 @@
         {%- if product.compare_at_price > product.price -%}
           <span class="badge badge--promo pgallery__badge">PROMO</span>
         {%- endif -%}
+
+        <div class="pgallery__stickers pgallery__stickers--left" aria-label="Informations produit">
+          {%- if is_limited_product -%}
+            <img class="pgallery__sticker" src="{{ sticker_limited_url }}" alt="Edition limitée" width="112" height="112" loading="eager">
+          {%- elsif is_best_seller_product -%}
+            <span class="pgallery__pill pgallery__pill--best">Best seller</span>
+          {%- elsif is_top_sales_product -%}
+            <img class="pgallery__sticker" src="{{ sticker_top_sales_url }}" alt="Top ventes" width="112" height="112" loading="eager">
+          {%- elsif is_new_product -%}
+            <span class="pgallery__pill">Nouveauté</span>
+          {%- elsif pickup_available -%}
+            <img class="pgallery__sticker" src="{{ sticker_store_url }}" alt="Disponible en boutique" width="112" height="112" loading="eager">
+          {%- endif -%}
+        </div>
+        {%- unless is_partner_sourced -%}
+          <div class="pgallery__stickers pgallery__stickers--right" aria-label="Livraison">
+            <img class="pgallery__sticker" src="{{ sticker_24_48_url }}" alt="Livraison 24/48h" width="112" height="112" loading="eager">
+          </div>
+        {%- endunless -%}
 
         {%- if product.featured_image != blank -%}
           <img
@@ -146,19 +201,44 @@
 
     {%- comment -%} ── INFO ── {%- endcomment -%}
     <div class="pinfo">
-      {%- if product.vendor != blank -%}
-        <p class="pinfo__vendor">{{ product.vendor }}</p>
+      {%- if product.vendor != blank or style_id != blank -%}
+        <div class="pinfo__meta">
+          {%- if product.vendor != blank -%}
+            <p class="pinfo__vendor">{{ product.vendor }}</p>
+          {%- endif -%}
+          {%- if style_id != blank -%}
+            <p class="pinfo__sku">SKU : {{ style_id }}</p>
+          {%- endif -%}
+        </div>
       {%- endif -%}
 
       <h1 class="pinfo__title">{{ product.title }}</h1>
 
-      {%- if current.sku != blank -%}
-        <p class="pinfo__sku">{{ current.sku }}</p>
-      {%- endif -%}
+      <a
+        class="pinfo__review-summary"
+        href="{{ google_reviews_url }}"
+        target="_blank"
+        rel="noopener"
+        aria-label="{{ section.settings.google_rating }} sur 5 sur Google, {{ section.settings.google_review_count }}"
+      >
+        <img
+          class="pinfo__review-icon"
+          src="https://cdn.shopify.com/s/files/1/0668/6700/3467/files/Logo-google-icon-PNG.png?v=1788269036"
+          alt=""
+          width="18"
+          height="18"
+          loading="lazy"
+        >
+        <span class="pinfo__review-stars" aria-hidden="true">
+          {%- for i in (1..5) -%}★{%- endfor -%}
+        </span>
+        <span class="pinfo__review-score">{{ section.settings.google_rating }}/5</span>
+        <span class="pinfo__review-count">{{ section.settings.google_review_count }}</span>
+      </a>
 
       <div class="pinfo__units">
         <button type="button" class="size-unit is-active" data-unit="EU" aria-pressed="true">EU</button>
-        <button type="button" class="size-unit" data-unit="US" aria-pressed="false">US</button>
+        <button type="button" class="size-unit" data-unit="US" aria-pressed="false">US M</button>
         <button type="button" class="size-unit" data-unit="UK" aria-pressed="false">UK</button>
         <button type="button" class="size-unit" data-unit="CM" aria-pressed="false">CM</button>
         {%- if is_sneaker -%}
@@ -212,31 +292,46 @@
           <p class="pinfo__stock">Plus que {{ current.inventory_quantity }} produit{% if current.inventory_quantity > 1 %}s{% endif %} en stock</p>
         {%- endif -%}
 
-        <ul class="pinfo__shipping" aria-label="Delai de livraison">
-          <li class="pinfo__shipping-option{% unless is_partner_sourced %} is-active{% else %} is-muted{% endunless %}">
-            <span class="ship-dot{% unless is_partner_sourced %} ship-dot--filled{% endunless %}"></span>
-            Livraison 24/48h
+        <ul class="pinfo__reassurance" aria-label="Garanties Kozy">
+          <li class="pinfo__reassurance-item">
+            <span class="pinfo__reassurance-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </span>
+            Produits authentiques
           </li>
-          <li
-            class="pinfo__shipping-option{% if is_partner_sourced %} is-active has-tooltip{% else %} is-muted{% endif %}"
-            {% if is_partner_sourced %}tabindex="0" aria-describedby="shipping-tooltip-{{ section.id }}"{% endif %}
-          >
-            <span class="ship-dot{% if is_partner_sourced %} ship-dot--filled{% endif %}"></span>
-            Livraison 5 à 12 jours
-            {%- if is_partner_sourced -%}
-              <span class="pinfo__shipping-tooltip" id="shipping-tooltip-{{ section.id }}" role="tooltip">
-                Approvisionné via notre réseau de revendeurs partenaires. Jours ouvrés uniquement.
-              </span>
-            {%- endif -%}
+          <li class="pinfo__reassurance-item">
+            <span class="pinfo__reassurance-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 6v5a1 1 0 0 0 1 1h6.102a1 1 0 0 1 .712.298l.898.91a1 1 0 0 1 .288.702V17a1 1 0 0 1-1 1h-3"/>
+                <path d="M5 18H3a1 1 0 0 1-1-1V8a2 2 0 0 1 2-2h12c1.1 0 2.1.8 2.4 1.8l1.176 4.2"/>
+                <path d="M9 18h5"/>
+                <circle cx="16" cy="18" r="2"/>
+                <circle cx="7" cy="18" r="2"/>
+              </svg>
+            </span>
+            {%- if is_partner_sourced -%}Livraison 5 à 12 jours{%- else -%}Livraison 24/48h{%- endif -%}
+          </li>
+          <li class="pinfo__reassurance-item">
+            <span class="pinfo__reassurance-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="5" rx="2"/>
+                <line x1="2" x2="22" y1="10" y2="10"/>
+              </svg>
+            </span>
+            Paiement sécurisé
           </li>
         </ul>
 
-        <div class="pinfo__buttons{% if pickup_available %} has-mobile-pickup{% endif %}">
+        <div class="pinfo__buttons">
           <button type="submit" name="add" class="btn btn--primary pinfo__btn"{% unless current.available %} disabled{% endunless %}>
-            {%- if current.available -%}Ajouter au panier{%- else -%}Rupture de stock{%- endif -%}
-          </button>
-          <button type="submit" name="properties[Mode]" value="Retrait en boutique" class="btn pinfo__btn pinfo__btn--pickup"{% unless pickup_available %} disabled{% endunless %}>
-            {%- if pickup_available -%}Retirer en boutique{%- else -%}Retrait indisponible{%- endif -%}
+            {%- if current.available -%}
+              Ajouter au panier · <span data-add-to-cart-price>{{ current.price | money_without_trailing_zeros }}</span>
+            {%- else -%}
+              Rupture de stock
+            {%- endif -%}
           </button>
         </div>
 
@@ -293,7 +388,7 @@
             <thead>
               <tr>
                 <th scope="col">EU</th>
-                <th scope="col">US</th>
+                <th scope="col">US M</th>
                 <th scope="col">UK</th>
                 <th scope="col">CM</th>
               </tr>
@@ -331,6 +426,8 @@
 .pmain {
   background: var(--color-white);
   padding-bottom: var(--space-16);
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Breadcrumb */
@@ -352,16 +449,27 @@
 /* Layout */
 .pmain__layout {
   display: grid;
-  grid-template-columns: minmax(420px, 0.82fr) minmax(420px, 1fr);
-  gap: clamp(var(--space-8), 4vw, var(--space-16));
+  grid-template-columns: minmax(0, 50vw) minmax(0, 50vw);
+  gap: 0;
   align-items: flex-start;
+  width: 100vw;
+  margin-left: calc(var(--container-padding) * -1);
+  margin-right: calc(var(--container-padding) * -1);
+  padding-left: 0;
+  padding-right: 0;
   padding-top: var(--space-8);
+  max-width: 100vw;
 }
 
 @media (max-width: 1024px) {
   .pmain__layout {
     grid-template-columns: 1fr;
     gap: var(--space-8);
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
   }
 }
 
@@ -372,6 +480,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  min-width: 0;
 }
 
 .pgallery__main {
@@ -384,11 +493,58 @@
 
 .pgallery__badge {
   position: absolute;
-  top: var(--space-6);
+  bottom: var(--space-6);
   left: var(--space-6);
   z-index: 2;
   border-radius: 9999px;
   padding: 6px 14px;
+}
+
+.pgallery__stickers {
+  position: absolute;
+  top: var(--space-5);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+.pgallery__stickers--left {
+  left: var(--space-16);
+  align-items: flex-start;
+}
+.pgallery__stickers--right {
+  right: var(--space-5);
+  align-items: flex-end;
+}
+.pgallery__sticker {
+  display: block;
+  width: clamp(74px, 8vw, 112px);
+  height: auto;
+}
+
+.pgallery__pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border: 1.5px solid var(--color-black);
+  border-radius: 8px;
+  background: var(--color-white);
+  box-shadow: 0 3px 0 var(--color-black);
+  color: var(--color-black);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  padding: 0 15px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pgallery__pill--best {
+  background: var(--color-black);
+  color: var(--color-white);
+  box-shadow: 0 3px 0 var(--color-black);
 }
 
 .pgallery__main-img {
@@ -549,16 +705,30 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  width: min(560px, calc(100% - (var(--container-padding) * 2)));
   max-width: 560px;
+  justify-self: center;
   padding-top: var(--space-1);
+  min-width: 0;
+}
+
+.pinfo__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
 }
 
 .pinfo__vendor {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--color-black);
+  overflow-wrap: anywhere;
 }
 
 .pinfo__title {
@@ -570,9 +740,55 @@
 }
 
 .pinfo__sku {
+  flex: 0 1 auto;
   font-size: var(--font-size-small);
   color: var(--color-gray-500);
   letter-spacing: 1px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pinfo__review-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  max-width: 100%;
+  padding: 9px 13px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 9999px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.pinfo__review-summary:hover {
+  border-color: var(--color-black);
+  box-shadow: 0 2px 0 var(--color-black);
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.pinfo__review-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  object-fit: contain;
+}
+.pinfo__review-stars {
+  color: #fbbc04;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.pinfo__review-score {
+  white-space: nowrap;
+}
+.pinfo__review-count {
+  color: var(--color-gray-500);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
 }
 
 /* Unit toggle */
@@ -632,11 +848,13 @@
 .size-guide-modal__dialog {
   position: relative;
   z-index: 1;
-  width: min(960px, calc(100vw - var(--space-10)));
-  max-height: min(720px, calc(100vh - var(--space-12)));
+  width: min(1080px, calc(100vw - var(--space-10)));
+  max-height: min(800px, calc(100vh - var(--space-12)));
   background: var(--color-white);
   padding: var(--space-10);
-  box-shadow: 0 18px 60px rgba(0,0,0,0.16);
+  border: 1.5px solid var(--color-black);
+  border-radius: 8px;
+  box-shadow: 0 5px 0 var(--color-black);
   overflow: hidden;
 }
 
@@ -667,9 +885,11 @@
 }
 
 .size-guide-modal__table-wrap {
-  max-height: min(520px, calc(100vh - 260px));
+  max-height: min(620px, calc(100vh - 240px));
   overflow: auto;
-  border-right: 1px solid var(--color-gray-200);
+  border: 1.5px solid var(--color-black);
+  border-radius: 8px;
+  box-shadow: 0 3px 0 var(--color-black);
 }
 
 .size-guide-modal__table {
@@ -682,8 +902,8 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--color-gray-100);
-  color: var(--color-black);
+  background: var(--color-black);
+  color: var(--color-white);
   font-weight: var(--font-weight-bold);
 }
 
@@ -792,87 +1012,58 @@
   color: var(--color-gray-700);
 }
 
-/* Shipping pills */
-.pinfo__shipping {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+/* Reassurance */
+.pinfo__reassurance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2);
-  list-style: none;
-  padding: 0;
-  align-items: center;
   margin-top: var(--space-4);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  list-style: none;
 }
-.pinfo__shipping-option {
-  position: relative;
+.pinfo__reassurance-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 74px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  text-align: center;
+}
+.pinfo__reassurance-icon {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  min-height: 32px;
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-semibold);
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
   border: 0;
-  background: var(--color-gray-100);
-  padding: 6px 13px;
-  border-radius: 9999px;
-  width: fit-content;
-}
-.pinfo__shipping-option.is-muted {
-  color: var(--color-gray-500);
-  background: var(--color-gray-200);
-  opacity: 0.75;
-}
-.pinfo__shipping-option.is-active {
+  border-radius: 0;
+  background: transparent;
   color: var(--color-black);
-  background: var(--color-gray-100);
-  opacity: 1;
 }
-.pinfo__shipping-option.has-tooltip {
-  outline: none;
-}
-.pinfo__shipping-option.has-tooltip:focus-visible {
-  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-black);
-}
-.ship-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: 1px solid var(--color-black);
-  display: inline-block;
-  flex: 0 0 auto;
-}
-.ship-dot--filled { background: var(--color-black); }
-.pinfo__shipping-tooltip {
-  position: absolute;
-  left: 0;
-  bottom: calc(100% + var(--space-3));
-  z-index: 2;
-  width: min(340px, calc(100vw - 40px));
-  padding: var(--space-4);
-  border: 1px solid var(--color-gray-200);
-  border-radius: 22px;
-  background: var(--color-white);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
-  color: var(--color-black);
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-medium);
-  line-height: 1.2;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(var(--space-1));
-  transition: opacity 0.15s, transform 0.15s;
-}
-.pinfo__shipping-option:hover .pinfo__shipping-tooltip,
-.pinfo__shipping-option:focus .pinfo__shipping-tooltip,
-.pinfo__shipping-option:focus-within .pinfo__shipping-tooltip {
-  opacity: 1;
-  transform: translateY(0);
+
+.pinfo__reassurance-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  stroke-width: 1.55;
 }
 
 /* Buy buttons */
 .pinfo__buttons {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--space-3);
   margin-top: var(--space-4);
 }
@@ -881,16 +1072,6 @@
   min-height: 58px;
   padding: 15px var(--space-6);
   font-weight: var(--font-weight-semibold);
-}
-.pinfo__btn--pickup {
-  background: var(--color-gray-200);
-  color: var(--color-gray-500);
-  border: 1.5px solid var(--color-gray-300);
-}
-.pinfo__btn--pickup:hover {
-  background: var(--color-gray-200);
-  border-color: var(--color-gray-200);
-  opacity: 1;
 }
 .pinfo__btn[disabled] {
   opacity: 0.5;
@@ -929,7 +1110,7 @@
 
 @media (max-width: 768px) {
   .pmain {
-    padding-bottom: calc(198px + env(safe-area-inset-bottom));
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
   }
 
   .breadcrumb {
@@ -953,8 +1134,31 @@
   }
 
   .pgallery__badge {
-    top: var(--space-4);
+    bottom: var(--space-4);
     left: var(--space-5);
+  }
+
+  .pgallery__stickers {
+    top: var(--space-4);
+    gap: 5px;
+  }
+
+  .pgallery__stickers--left {
+    left: calc(var(--container-padding) + var(--space-4));
+  }
+
+  .pgallery__stickers--right {
+    right: var(--space-5);
+  }
+
+  .pgallery__sticker {
+    width: 68px;
+  }
+
+  .pgallery__pill {
+    min-height: 32px;
+    font-size: 10px;
+    padding: 0 12px;
   }
 
   .pgallery__thumbs-wrap {
@@ -1026,6 +1230,9 @@
 
   .pinfo {
     max-width: none;
+    width: 100%;
+    justify-self: stretch;
+    padding: 0;
     gap: var(--space-4);
   }
 
@@ -1033,8 +1240,29 @@
     font-size: 32px;
   }
 
+  .pinfo__meta {
+    align-items: flex-start;
+  }
+
+  .pinfo__sku {
+    white-space: normal;
+  }
+
+  .pinfo__review-summary {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    line-height: 1.15;
+  }
+
   .pinfo__units {
     margin-top: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .pinfo__size-guide {
+    flex: 1 0 100%;
+    margin-left: 0;
   }
 
   .size-grid {
@@ -1046,6 +1274,22 @@
     align-items: center;
     text-align: center;
     min-height: 68px;
+  }
+
+  .pinfo__reassurance {
+    gap: 6px;
+  }
+
+  .pinfo__reassurance-item {
+    min-height: 70px;
+    padding: var(--space-2);
+    font-size: 10px;
+  }
+
+  .pinfo__reassurance-icon {
+    width: 22px;
+    height: 22px;
+    flex-basis: 22px;
   }
 
   .pinfo__buttons {
@@ -1066,10 +1310,6 @@
     box-shadow: 0 -8px 24px rgba(0,0,0,0.08);
   }
 
-  .pinfo__buttons.has-mobile-pickup::before {
-    height: calc(144px + env(safe-area-inset-bottom));
-  }
-
   .pinfo__btn {
     min-height: 54px;
   }
@@ -1085,18 +1325,6 @@
     min-height: 54px;
     padding: 15px var(--space-6);
     transform: translateY(calc((var(--space-3) + env(safe-area-inset-bottom)) * -1));
-  }
-
-  .pinfo__buttons.has-mobile-pickup .pinfo__btn--pickup {
-    position: fixed;
-    left: var(--container-padding);
-    right: var(--container-padding);
-    bottom: 0;
-    z-index: 1100;
-    width: auto;
-    margin: 0;
-    min-height: 54px;
-    transform: translateY(calc((var(--space-6) + 54px + env(safe-area-inset-bottom)) * -1));
   }
 
   .size-guide-modal {
@@ -1136,10 +1364,17 @@
   var radios = section.querySelectorAll('[data-variant-radio]');
   var hiddenInput = section.querySelector('[data-variant-id]');
   var cells = section.querySelectorAll('.size-cell');
+  var addToCartPrice = section.querySelector('[data-add-to-cart-price]');
+  var variantPrices = {
+    {%- for variant in product.variants -%}
+      "{{ variant.id }}": {{ variant.price | money_without_trailing_zeros | json }}{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  };
 
   radios.forEach(function (radio) {
     radio.addEventListener('change', function () {
       if (hiddenInput) hiddenInput.value = radio.value;
+      if (addToCartPrice && variantPrices[radio.value]) addToCartPrice.textContent = variantPrices[radio.value];
       cells.forEach(function (c) { c.classList.remove('is-selected'); });
       var cell = radio.closest('.size-cell');
       if (cell) cell.classList.add('is-selected');
@@ -1491,31 +1726,37 @@
       return findNearestEuKey(thirdEuByUs[normalizedValue]) || thirdEuByUs[normalizedValue];
     }
 
-    var matchedKey = '';
-    Object.keys(sizeMap).some(function (candidate) {
+    var matchedKeys = [];
+    Object.keys(sizeMap).forEach(function (candidate) {
       var candidateValue = sizeMap[candidate][sourceUnit];
-      if (!candidateValue) return false;
+      if (!candidateValue) return;
       if (normalizeDecimal(String(candidateValue).replace(/[^\d.]/g, '')) === normalizedValue) {
-        matchedKey = candidate;
-        return true;
+        matchedKeys.push(candidate);
       }
-      return false;
     });
-    return matchedKey;
+    if (!matchedKeys.length) return '';
+
+    if (sourceUnit === 'US') {
+      var preferredKeys = matchedKeys.filter(shouldShowGuideSize);
+      if (preferredKeys.length) return preferredKeys[0];
+    }
+
+    return matchedKeys[0];
   }
 
   function parseSizeValue(value) {
     var normalized = normalizeSizeText(value);
     var sourceUnit = '';
     var sourceValue = '';
-    var unitBefore = normalized.match(/\b(eu|eur|us|uk|cm|jp)\s*(\d+(?:\.\d+)?(?:\s*(?:1|2)\/3)?)/);
-    var unitAfter = normalized.match(/(\d+(?:\.\d+)?(?:\s*(?:1|2)\/3)?)\s*(eu|eur|us|uk|cm|jp)\b/);
+    var unitBefore = normalized.match(/\b(eu|eur|us(?:\s*[mwy])?|uk|cm|jp)\s*(\d+(?:\.\d+)?(?:\s*(?:1|2)\/3)?)/);
+    var unitAfter = normalized.match(/(\d+(?:\.\d+)?(?:\s*(?:1|2)\/3)?)\s*(eu|eur|us(?:\s*[mwy])?|uk|cm|jp)\b/);
     var match = unitBefore || unitAfter;
 
     if (match) {
-      sourceUnit = (unitBefore ? match[1] : match[2]).toUpperCase();
+      sourceUnit = (unitBefore ? match[1] : match[2]).toUpperCase().replace(/\s+/g, '');
       sourceValue = unitBefore ? match[2] : match[1];
       if (sourceUnit === 'EUR') sourceUnit = 'EU';
+      if (sourceUnit === 'USM' || sourceUnit === 'USW' || sourceUnit === 'USY') sourceUnit = 'US';
       if (sourceUnit === 'JP') sourceUnit = 'CM';
     }
 
@@ -1579,7 +1820,9 @@
 
   function formatSizeWithUnit(rawSize, unit) {
     var convertedSize = getConvertedSize(rawSize, unit);
-    return unit === 'EU' ? unit + ' ' + convertedSize : convertedSize + ' ' + unit;
+    if (unit === 'EU') return unit + ' ' + convertedSize;
+    if (unit === 'US') return convertedSize + ' US M';
+    return convertedSize + ' ' + unit;
   }
 
   function formatGuideValue(value) {
@@ -1653,6 +1896,23 @@
       "max": 20,
       "step": 1,
       "default": 5
+    },
+    {
+      "type": "text",
+      "id": "google_rating",
+      "label": "Note Google",
+      "default": "4.9"
+    },
+    {
+      "type": "text",
+      "id": "google_review_count",
+      "label": "Nombre d'avis Google",
+      "default": "+100 avis"
+    },
+    {
+      "type": "url",
+      "id": "google_reviews_url",
+      "label": "Lien avis Google"
     }
   ],
   "blocks": [

@@ -1,69 +1,175 @@
-{%- comment -%} Trust Bar — 4 icônes de confiance {%- endcomment -%}
+{%- comment -%} Trust Bar — messages de confiance alignés avec la PDP {%- endcomment -%}
 
 <section class="trust-bar">
   <div class="trust-bar__inner container">
+    {%- assign trust_items_rendered = 0 -%}
     {%- for block in section.blocks -%}
+      {%- liquid
+        assign trust_icon = block.settings.icon
+        assign trust_title = block.settings.title
+        assign trust_subtitle = block.settings.subtitle
+        assign skip_legacy_block = false
+
+        if block.settings.title == 'Click & Collect'
+          assign trust_icon = 'badge'
+          assign trust_title = 'Produits authentiques'
+          assign trust_subtitle = 'Sélection vérifiée par Kozy'
+        elsif block.settings.title == '100% Authentiques'
+          assign trust_icon = 'truck'
+          assign trust_title = 'Livraison claire'
+          assign trust_subtitle = '24/48h ou 5 à 12 jours'
+        elsif block.settings.title == 'Livraison rapide'
+          assign trust_icon = 'lock'
+          assign trust_title = 'Paiement sécurisé'
+          assign trust_subtitle = 'Commande protégée'
+        elsif block.settings.title == 'SAV réactif'
+          assign skip_legacy_block = true
+        endif
+      -%}
+      {%- if skip_legacy_block -%}
+        {%- continue -%}
+      {%- endif -%}
+      {%- assign trust_items_rendered = trust_items_rendered | plus: 1 -%}
       <div class="trust-bar__item" {{ block.shopify_attributes }}>
         <div class="trust-bar__icon" aria-hidden="true">
-          {%- case block.settings.icon -%}
+          {%- case trust_icon -%}
             {%- when 'store' -%}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             {%- when 'badge' -%}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
             {%- when 'truck' -%}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            {%- when 'lock' -%}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/><path d="M12 15v2"/></svg>
             {%- when 'headphones' -%}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
           {%- endcase -%}
         </div>
-        <p class="trust-bar__title">{{ block.settings.title }}</p>
-        {%- if block.settings.subtitle != blank -%}
-          <p class="trust-bar__subtitle">{{ block.settings.subtitle }}</p>
-        {%- endif -%}
+        <div class="trust-bar__copy">
+          <p class="trust-bar__title">{{ trust_title }}</p>
+          {%- if trust_subtitle != blank -%}
+            <p class="trust-bar__subtitle">{{ trust_subtitle }}</p>
+          {%- endif -%}
+        </div>
       </div>
     {%- endfor -%}
+
+    {%- if trust_items_rendered == 0 -%}
+      <div class="trust-bar__item">
+        <div class="trust-bar__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div class="trust-bar__copy">
+          <p class="trust-bar__title">Produits authentiques</p>
+          <p class="trust-bar__subtitle">Sélection vérifiée par Kozy</p>
+        </div>
+      </div>
+      <div class="trust-bar__item">
+        <div class="trust-bar__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6v5a1 1 0 0 0 1 1h6.102a1 1 0 0 1 .712.298l.898.91a1 1 0 0 1 .288.702V17a1 1 0 0 1-1 1h-3"/><path d="M5 18H3a1 1 0 0 1-1-1V8a2 2 0 0 1 2-2h12c1.1 0 2.1.8 2.4 1.8l1.176 4.2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+        </div>
+        <div class="trust-bar__copy">
+          <p class="trust-bar__title">Livraison claire</p>
+          <p class="trust-bar__subtitle">24/48h ou 5 à 12 jours</p>
+        </div>
+      </div>
+      <div class="trust-bar__item">
+        <div class="trust-bar__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+        </div>
+        <div class="trust-bar__copy">
+          <p class="trust-bar__title">Paiement sécurisé</p>
+          <p class="trust-bar__subtitle">Commande protégée</p>
+        </div>
+      </div>
+    {%- endif -%}
   </div>
 </section>
 
 {% stylesheet %}
 .trust-bar {
-  border-top: 0.5px solid var(--color-gray-200);
-  border-bottom: 0.5px solid var(--color-gray-200);
-  padding: var(--space-10) 0;
+  background: var(--color-gray-100);
+  border-top: 0.5px solid var(--color-gray-100);
+  border-bottom: 0.5px solid var(--color-gray-100);
+  padding: var(--space-8) 0;
 }
 
 .trust-bar__inner {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
 }
 
 .trust-bar__item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  text-align: center;
-  gap: var(--space-2);
+  justify-content: center;
+  min-height: 70px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 9999px;
+  background: var(--color-white);
+  text-align: left;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
 }
 
-.trust-bar__icon { width: 28px; height: 28px; color: var(--color-black); }
+.trust-bar__icon {
+  flex: 0 0 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-black);
+}
 .trust-bar__icon svg { width: 100%; height: 100%; }
 
+.trust-bar__copy {
+  min-width: 0;
+}
+
 .trust-bar__title {
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-semibold);
+  font-size: 13px;
+  font-weight: var(--font-weight-bold);
   color: var(--color-black);
-  line-height: 1.3;
+  line-height: 1.15;
+  margin: 0;
+  text-transform: uppercase;
 }
 
 .trust-bar__subtitle {
-  font-size: var(--font-size-xs);
+  font-size: 12px;
   color: var(--color-gray-500);
-  line-height: 1.4;
+  line-height: 1.25;
+  margin: 2px 0 0;
 }
 
 @media (max-width: 768px) {
-  .trust-bar__inner { grid-template-columns: repeat(2, 1fr); }
+  .trust-bar {
+    padding: var(--space-5) 0;
+  }
+
+  .trust-bar__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .trust-bar__item {
+    justify-content: center;
+    min-height: 58px;
+    padding: var(--space-3) var(--space-4);
+    text-align: center;
+  }
+
+  .trust-bar__icon {
+    flex-basis: 22px;
+    width: 22px;
+    height: 22px;
+  }
 }
 {% endstylesheet %}
 
@@ -82,7 +188,8 @@
             { "value": "store",      "label": "Boutique" },
             { "value": "badge",      "label": "Badge" },
             { "value": "truck",      "label": "Livraison" },
-            { "value": "headphones", "label": "SAV" }
+            { "value": "headphones", "label": "SAV" },
+            { "value": "lock",       "label": "Paiement sécurisé" }
           ],
           "default": "store"
         },
@@ -94,10 +201,9 @@
   "presets": [{
     "name": "Trust Bar",
     "blocks": [
-      { "type": "item", "settings": { "icon": "store",      "title": "Click & Collect",   "subtitle": "Disponible en boutique" } },
-      { "type": "item", "settings": { "icon": "badge",      "title": "100% Authentiques", "subtitle": "Produits garantis originaux" } },
-      { "type": "item", "settings": { "icon": "truck",      "title": "Livraison rapide",   "subtitle": "24/48h en France" } },
-      { "type": "item", "settings": { "icon": "headphones", "title": "SAV réactif",        "subtitle": "Une question ? On répond" } }
+      { "type": "item", "settings": { "icon": "badge", "title": "Produits authentiques", "subtitle": "Sélection vérifiée par Kozy" } },
+      { "type": "item", "settings": { "icon": "truck", "title": "Livraison claire",      "subtitle": "24/48h ou 5 à 12 jours" } },
+      { "type": "item", "settings": { "icon": "lock",  "title": "Paiement sécurisé",     "subtitle": "Commande protégée" } }
     ]
   }]
 }

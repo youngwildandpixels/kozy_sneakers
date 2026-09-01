@@ -183,7 +183,7 @@
             <details class="mobile-menu__details">
               <summary class="mobile-menu__summary">
                 <span>{{ link.title }}</span>
-                <svg class="mobile-menu__chevron" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg class="mobile-menu__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M9 18l6-6-6-6"/>
                 </svg>
               </summary>
@@ -713,9 +713,13 @@ body.search-open {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    min-height: 0;
     background: var(--color-white);
     border-top: 0.5px solid var(--color-gray-200);
-    padding: 42px var(--space-6) var(--space-8);
+    padding: 36px var(--space-6) var(--space-8);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -731,7 +735,7 @@ body.search-open {
   }
 
   .mobile-menu__item {
-    border-top: 2px solid var(--color-black);
+    border-top: 1px solid var(--color-gray-300);
   }
 
   .mobile-menu__item:first-child {
@@ -739,7 +743,7 @@ body.search-open {
   }
 
   .mobile-menu__item:last-child {
-    border-bottom: 2px solid var(--color-black);
+    border-bottom: 1px solid var(--color-gray-300);
   }
 
   .mobile-menu__link,
@@ -748,10 +752,10 @@ body.search-open {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    min-height: 78px;
+    min-height: 74px;
     color: var(--color-black);
-    font-size: 23px;
-    font-weight: var(--font-weight-bold);
+    font-size: 21px;
+    font-weight: var(--font-weight-semibold);
     line-height: 1;
   }
 
@@ -766,6 +770,7 @@ body.search-open {
 
   .mobile-menu__chevron {
     flex-shrink: 0;
+    color: var(--color-gray-700);
     transition: transform 0.2s ease;
   }
 
@@ -782,7 +787,7 @@ body.search-open {
   .mobile-menu__sublink {
     color: var(--color-black);
     font-size: 15px;
-    font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-medium);
     text-transform: uppercase;
   }
 
@@ -795,6 +800,7 @@ body.search-open {
   .mobile-menu__grandlink {
     color: var(--color-black);
     font-size: 13px;
+    font-weight: var(--font-weight-medium);
     text-transform: uppercase;
   }
 

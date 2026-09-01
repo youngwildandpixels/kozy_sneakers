@@ -13,36 +13,53 @@
         <div class="brand-story__body">{{ section.settings.text }}</div>
       {%- endif -%}
       {%- if section.settings.cta_label != blank -%}
-        <a href="{{ section.settings.cta_link | default: '#' }}" class="btn btn--primary brand-story__cta">
+        {%- liquid
+          assign cta_url = section.settings.cta_link
+          if section.settings.cta_page != blank
+            assign cta_url = pages[section.settings.cta_page].url
+          endif
+        -%}
+        <a href="{{ cta_url | default: '#' }}" class="btn btn--primary brand-story__cta">
           {{ section.settings.cta_label }}
         </a>
       {%- endif -%}
     </div>
-    <div class="brand-story__media">
-      {%- if section.settings.image != blank -%}
+    <div class="brand-story__media" aria-label="Photos de la boutique Kozy Sneakers">
+      {%- assign boutique_images = 'DSC01421.webp,DSC00077.webp,DSC02149.webp,DSC02387.webp' | split: ',' -%}
+      {%- for boutique_image in boutique_images -%}
+        {%- assign image_src = 'https://kozysneakers.com/cdn/shop/files/' | append: boutique_image | append: '?v=1782305377' -%}
         <img
-          src="{{ section.settings.image | image_url: width: 800 }}"
-          alt="{{ section.settings.image.alt | escape }}"
-          loading="lazy"
-          width="800"
-          height="1000"
+          src="{{ image_src }}&width=900"
+          srcset="{{ image_src }}&width=480 480w, {{ image_src }}&width=720 720w, {{ image_src }}&width=900 900w"
+          sizes="(max-width: 768px) calc(100vw - 88px), 520px"
+          alt="Boutique Kozy Sneakers"
+          loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+          width="900"
+          height="1125"
           class="brand-story__img"
         >
-      {%- else -%}
-        {{ 'lifestyle-1' | placeholder_svg_tag: 'brand-story__img brand-story__img--placeholder' }}
-      {%- endif -%}
+      {%- endfor -%}
     </div>
   </div>
 </section>
 
 {% stylesheet %}
-.brand-story { padding: var(--space-16) 0; }
+.brand-story {
+  padding: var(--space-16) var(--container-padding);
+  background: var(--color-gray-100);
+}
 
 .brand-story__inner {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-16);
   align-items: center;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--space-12);
+  background: var(--color-black);
+  color: var(--color-white);
 }
 
 .brand-story__label {
@@ -50,7 +67,7 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--color-gray-500);
+  color: var(--color-gray-300);
   margin-bottom: var(--space-3);
 }
 
@@ -65,23 +82,60 @@
 .brand-story__body {
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-light);
-  color: var(--color-gray-700);
-  line-height: 1.7;
+  color: var(--color-white);
+  line-height: 1.3;
   margin-bottom: var(--space-8);
 }
 
+.brand-story__cta {
+  background: var(--color-white);
+  color: var(--color-black);
+  border-color: var(--color-white);
+}
+
+.brand-story__cta:hover {
+  background: transparent;
+  color: var(--color-white);
+  opacity: 1;
+}
+
+.brand-story__media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-gray-100);
+}
+
 .brand-story__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  aspect-ratio: 4 / 5;
   display: block;
+  opacity: 0;
+  animation: brand-story-slideshow 16s infinite;
+  transition: opacity 0.6s ease;
 }
 
-.brand-story__img--placeholder { background: var(--color-gray-100); aspect-ratio: 4/5; }
+.brand-story__img:nth-child(1) { animation-delay: 0s; }
+.brand-story__img:nth-child(2) { animation-delay: 4s; }
+.brand-story__img:nth-child(3) { animation-delay: 8s; }
+.brand-story__img:nth-child(4) { animation-delay: 12s; }
+
+@keyframes brand-story-slideshow {
+  0%, 22% { opacity: 1; }
+  25%, 97% { opacity: 0; }
+  100% { opacity: 1; }
+}
 
 @media (max-width: 768px) {
-  .brand-story__inner { grid-template-columns: 1fr; gap: var(--space-8); }
+  .brand-story { padding: var(--space-12) 0; }
+  .brand-story__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    padding: var(--space-6);
+  }
   .brand-story__title { font-size: var(--font-size-h1); }
   .brand-story__media { order: -1; }
 }
@@ -96,7 +150,8 @@
     { "type": "text",         "id": "title",     "label": "Titre",      "default": "The Last Step" },
     { "type": "richtext",     "id": "text",      "label": "Texte",      "default": "<p>Présentation de la boutique.</p>" },
     { "type": "text",         "id": "cta_label", "label": "Texte CTA",  "default": "En savoir plus" },
-    { "type": "url",          "id": "cta_link",  "label": "Lien CTA" },
+    { "type": "page",         "id": "cta_page",  "label": "Page CTA" },
+    { "type": "url",          "id": "cta_link",  "label": "Lien CTA manuel" },
     { "type": "image_picker", "id": "image",     "label": "Image" }
   ],
   "presets": [{ "name": "Brand Story" }]

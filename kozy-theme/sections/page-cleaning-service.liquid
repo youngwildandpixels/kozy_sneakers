@@ -1,7 +1,20 @@
 {%- comment -%} Page Cleaning Service — page nettoyage sneakers {%- endcomment -%}
+{%- liquid
+  assign cleaning_sticker_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/21_nettoyage_pro.webp?v=1788271510'
+-%}
 
 <section class="cleaning-page" id="cleaning-page-{{ section.id }}">
   <div class="cleaning-page__hero container">
+    <img
+      class="cleaning-page__sticker"
+      src="{{ cleaning_sticker_url }}"
+      alt=""
+      width="240"
+      height="240"
+      loading="lazy"
+      aria-hidden="true"
+    >
+
     <div class="cleaning-page__hero-copy">
       {%- if section.settings.eyebrow != blank -%}
         <p class="cleaning-page__eyebrow">{{ section.settings.eyebrow }}</p>
@@ -125,13 +138,29 @@
 }
 
 .cleaning-page__hero {
+  position: relative;
   display: block;
   padding-top: var(--space-20);
   padding-bottom: var(--space-12);
   border-bottom: 1px solid var(--color-gray-200);
+  overflow: visible;
+}
+
+.cleaning-page__sticker {
+  position: absolute;
+  top: var(--space-10);
+  right: calc(var(--container-padding) - 62px);
+  z-index: 1;
+  width: clamp(150px, 17vw, 240px);
+  height: auto;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.16));
+  pointer-events: none;
+  transform: rotate(8deg);
 }
 
 .cleaning-page__hero-copy {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -390,6 +419,13 @@
   .cleaning-page__hero {
     padding-top: var(--space-10);
     padding-bottom: var(--space-10);
+  }
+
+  .cleaning-page__sticker {
+    top: var(--space-4);
+    right: var(--space-3);
+    width: 116px;
+    opacity: 0.94;
   }
 
   .cleaning-page__title {

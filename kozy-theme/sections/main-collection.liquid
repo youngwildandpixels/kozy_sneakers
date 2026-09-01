@@ -3,11 +3,159 @@
   assign paginate_limit = section.settings.products_per_page | default: 24
   assign sort_by = collection.sort_by | default: collection.default_sort_by
   assign collection_menu = section.settings.collection_menu
+  assign use_manual_collection_menu = section.settings.use_manual_collection_menu
   assign subcategory_menu = section.settings.subcategory_menu
   if subcategory_menu == blank
     assign subcategory_menu = linklists['main-menu']
   endif
+  assign brand_filter_reset_url = collection.url
+  assign has_brand_collection_filter = false
 -%}
+
+{%- capture brand_collection_choices -%}
+  {%- if subcategory_menu.links != blank -%}
+    {%- for top_link in subcategory_menu.links -%}
+      {%- liquid
+        assign top_collection_handle = blank
+        if top_link.type == 'collection_link'
+          assign top_collection_handle = top_link.object.handle
+        endif
+        assign top_title_handle = top_link.title | handleize
+        assign is_sneakers_root = false
+        if top_collection_handle == 'sneakers' or top_title_handle == 'sneakers'
+          assign is_sneakers_root = true
+        endif
+      -%}
+
+      {%- if is_sneakers_root and top_link.links != blank -%}
+        {%- assign brand_filter_reset_url = top_link.url -%}
+        {%- for brand_link in top_link.links -%}
+          {%- liquid
+            assign brand_collection_handle = blank
+            if brand_link.type == 'collection_link'
+              assign brand_collection_handle = brand_link.object.handle
+            endif
+            assign brand_is_current = false
+            if brand_collection_handle != blank and brand_collection_handle == collection.handle
+              assign brand_is_current = true
+            elsif brand_link.url == collection.url
+              assign brand_is_current = true
+            endif
+          -%}
+
+          {%- for child_brand_link in brand_link.links -%}
+            {%- if brand_is_current == false -%}
+              {%- if child_brand_link.type == 'collection_link' and child_brand_link.object.handle == collection.handle -%}
+                {%- assign brand_is_current = true -%}
+              {%- elsif child_brand_link.url == collection.url -%}
+                {%- assign brand_is_current = true -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if brand_is_current -%}
+            {%- assign has_brand_collection_filter = true -%}
+          {%- endif -%}
+
+          <a
+            class="collection-filters__choice collection-filters__choice--link{% if brand_is_current %} is-active{% endif %}"
+            href="{{ brand_link.url }}"
+            {% if brand_is_current %}aria-current="page"{% endif %}
+          >
+            <span class="collection-filters__fake-checkbox" aria-hidden="true"></span>
+            <span>{{ brand_link.title | escape }}</span>
+          </a>
+        {%- endfor -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+{%- assign brand_collection_choices = brand_collection_choices | strip -%}
+
+{%- capture automatic_collection_pills -%}
+  {%- if subcategory_menu.links != blank -%}
+    {%- assign found_collection_pills = false -%}
+    {%- for top_link in subcategory_menu.links -%}
+      {%- liquid
+        assign top_matches_collection = false
+        if top_link.type == 'collection_link' and top_link.object.handle == collection.handle
+          assign top_matches_collection = true
+        elsif top_link.url == collection.url
+          assign top_matches_collection = true
+        endif
+      -%}
+
+      {%- if top_matches_collection and top_link.links != blank -%}
+        {%- assign found_collection_pills = true -%}
+        {%- for pill_link in top_link.links -%}
+          {%- liquid
+            assign is_current_collection = false
+            if pill_link.type == 'collection_link' and pill_link.object.handle == collection.handle
+              assign is_current_collection = true
+            elsif pill_link.url == collection.url
+              assign is_current_collection = true
+            endif
+          -%}
+          <a href="{{ pill_link.url }}" class="collection-page__collection-pill{% if is_current_collection %} is-active{% endif %}"{% if is_current_collection %} aria-current="page"{% endif %}>
+            {{ pill_link.title | escape }}
+          </a>
+        {%- endfor -%}
+        {%- break -%}
+      {%- endif -%}
+
+      {%- for child_link in top_link.links -%}
+        {%- liquid
+          assign child_matches_collection = false
+          if child_link.type == 'collection_link' and child_link.object.handle == collection.handle
+            assign child_matches_collection = true
+          elsif child_link.url == collection.url
+            assign child_matches_collection = true
+          endif
+        -%}
+
+        {%- if child_matches_collection -%}
+          {%- assign found_collection_pills = true -%}
+          {%- if child_link.links != blank -%}
+            {%- for pill_link in child_link.links -%}
+              {%- liquid
+                assign is_current_collection = false
+                if pill_link.type == 'collection_link' and pill_link.object.handle == collection.handle
+                  assign is_current_collection = true
+                elsif pill_link.url == collection.url
+                  assign is_current_collection = true
+                endif
+              -%}
+              <a href="{{ pill_link.url }}" class="collection-page__collection-pill{% if is_current_collection %} is-active{% endif %}"{% if is_current_collection %} aria-current="page"{% endif %}>
+                {{ pill_link.title | escape }}
+              </a>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for pill_link in top_link.links -%}
+              {%- liquid
+                assign is_current_collection = false
+                if pill_link.type == 'collection_link' and pill_link.object.handle == collection.handle
+                  assign is_current_collection = true
+                elsif pill_link.url == collection.url
+                  assign is_current_collection = true
+                endif
+              -%}
+              <a href="{{ pill_link.url }}" class="collection-page__collection-pill{% if is_current_collection %} is-active{% endif %}"{% if is_current_collection %} aria-current="page"{% endif %}>
+                {{ pill_link.title | escape }}
+              </a>
+            {%- endfor -%}
+          {%- endif -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if found_collection_pills -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+{%- assign automatic_collection_pills = automatic_collection_pills | strip -%}
 
 <section class="collection-page">
   <div class="collection-page__head container">
@@ -26,7 +174,7 @@
         </svg>
       </button>
       <nav class="collection-page__collections" data-collections-track aria-label="Collections">
-        {%- if collection_menu.links != blank -%}
+        {%- if use_manual_collection_menu and collection_menu.links != blank -%}
           {%- for collection_link in collection_menu.links -%}
             {%- liquid
               assign is_current_collection = false
@@ -44,6 +192,8 @@
               {{ collection_link.title | escape }}
             </a>
           {%- endfor -%}
+        {%- elsif automatic_collection_pills != blank -%}
+          {{ automatic_collection_pills }}
         {%- else -%}
           {%- for collection_link in collections -%}
             {%- unless collection_link.handle == 'frontpage' -%}
@@ -79,7 +229,7 @@
           <h2>Filtres</h2>
         </div>
 
-        <form class="collection-filters__mobile-sort" method="get">
+        <form class="collection-filters__mobile-sort" action="{{ collection.url }}" method="get">
           {%- for filter in collection.filters -%}
             {%- case filter.type -%}
               {%- when 'boolean' -%}
@@ -121,9 +271,30 @@
           </details>
         </form>
 
-        <form class="collection-filters" data-collection-filters method="get">
+        <form class="collection-filters" action="{{ collection.url }}" data-collection-filters method="get">
           {%- if sort_by != blank -%}
             <input type="hidden" name="sort_by" value="{{ sort_by }}">
+          {%- endif -%}
+
+          {%- liquid
+            assign has_active_filters = has_brand_collection_filter
+            for filter in collection.filters
+              if filter.type == 'boolean' and filter.true_value.active
+                assign has_active_filters = true
+              elsif filter.type == 'list' and filter.active_values.size > 0
+                assign has_active_filters = true
+              elsif filter.type == 'price_range'
+                if filter.min_value.value or filter.max_value.value
+                  assign has_active_filters = true
+                endif
+              endif
+            endfor
+          -%}
+
+          {%- if has_active_filters -%}
+            <div class="collection-filters__active">
+              <a href="{{ brand_filter_reset_url }}" class="collection-filters__reset collection-filters__reset--inline">Réinitialiser les filtres</a>
+            </div>
           {%- endif -%}
 
           {%- capture subcategory_links -%}
@@ -173,7 +344,6 @@
 
           {%- liquid
             assign has_vendor_filter = false
-            assign has_model_filter = false
             assign has_color_filter = false
           -%}
 
@@ -188,9 +358,6 @@
                 elsif filter_handle contains 'vendor' or filter_handle contains 'brand' or filter_handle contains 'marque'
                   assign filter_label = 'Marques'
                   assign has_vendor_filter = true
-                elsif filter_handle contains 'model' or filter_handle contains 'modele'
-                  assign filter_label = 'Modèles'
-                  assign has_model_filter = true
                 elsif filter_handle contains 'color' or filter_handle contains 'couleur'
                   assign filter_label = 'Couleurs'
                   assign has_color_filter = true
@@ -278,7 +445,6 @@
           {%- endfor -%}
 
           {%- unless has_vendor_filter -%}
-            {%- assign rendered_vendors = '|' -%}
               <details class="collection-filters__group">
                 <summary class="collection-filters__summary">
                   <span>Marques</span>
@@ -287,44 +453,31 @@
                   </svg>
                 </summary>
                 <div class="collection-filters__values">
-                  {%- for product in collection.products -%}
-                    {%- assign vendor_key = '|' | append: product.vendor | append: '|' -%}
-                    {%- if product.vendor != blank -%}
-                      {%- unless rendered_vendors contains vendor_key -%}
-                        <label class="collection-filters__choice">
-                          <input type="checkbox" name="filter.p.vendor" value="{{ product.vendor | escape }}">
-                          <span>{{ product.vendor }}</span>
-                        </label>
-                        {%- assign rendered_vendors = rendered_vendors | append: product.vendor | append: '|' -%}
-                      {%- endunless -%}
-                    {%- endif -%}
-                  {%- endfor -%}
-                </div>
-              </details>
-          {%- endunless -%}
-
-          {%- unless has_model_filter -%}
-            {%- assign rendered_models = '|' -%}
-              <details class="collection-filters__group">
-                <summary class="collection-filters__summary">
-                  <span>Modèles</span>
-                  <svg class="collection-filters__chevron" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-                    <path d="M3 6l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </summary>
-                <div class="collection-filters__values">
-                  {%- for product in collection.products -%}
-                    {%- assign model_key = '|' | append: product.type | append: '|' -%}
-                    {%- if product.type != blank -%}
-                      {%- unless rendered_models contains model_key -%}
-                        <label class="collection-filters__choice">
-                          <input type="checkbox" name="filter.p.product_type" value="{{ product.type | escape }}">
-                          <span>{{ product.type }}</span>
-                        </label>
-                        {%- assign rendered_models = rendered_models | append: product.type | append: '|' -%}
-                      {%- endunless -%}
-                    {%- endif -%}
-                  {%- endfor -%}
+                  {%- if brand_collection_choices != blank -%}
+                    {{ brand_collection_choices }}
+                  {%- else -%}
+                    {%- assign rendered_vendors = '|' -%}
+                    {%- for product in collection.products -%}
+                      {%- assign vendor_key = '|' | append: product.vendor | append: '|' -%}
+                      {%- if product.vendor != blank -%}
+                        {%- unless rendered_vendors contains vendor_key -%}
+                          {%- liquid
+                            assign product_vendor_handle = product.vendor | handleize
+                            assign vendor_collection_url = routes.collections_url | append: '/' | append: product_vendor_handle
+                            assign vendor_is_current = false
+                            if product_vendor_handle == collection.handle
+                              assign vendor_is_current = true
+                            endif
+                          -%}
+                          <a class="collection-filters__choice collection-filters__choice--link{% if vendor_is_current %} is-active{% endif %}" href="{{ vendor_collection_url }}"{% if vendor_is_current %} aria-current="page"{% endif %}>
+                            <span class="collection-filters__fake-checkbox" aria-hidden="true"></span>
+                            <span>{{ product.vendor }}</span>
+                          </a>
+                          {%- assign rendered_vendors = rendered_vendors | append: product.vendor | append: '|' -%}
+                        {%- endunless -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
                 </div>
               </details>
           {%- endunless -%}
@@ -378,7 +531,7 @@
         </form>
 
         <div class="collection-filters__mobile-actions">
-          <a href="{{ collection.url }}" class="collection-filters__reset">Supprimer</a>
+          <a href="{{ brand_filter_reset_url }}" class="collection-filters__reset">Supprimer</a>
           <button type="button" class="collection-filters__apply" data-close-filters>Appliquer</button>
         </div>
       </aside>
@@ -408,7 +561,7 @@
             {%- endif -%}
           </p>
 
-          <form class="collection-page__sort" method="get">
+          <form class="collection-page__sort" action="{{ collection.url }}" method="get">
             {%- for filter in collection.filters -%}
               {%- case filter.type -%}
                 {%- when 'boolean' -%}
@@ -711,6 +864,35 @@
   background: var(--color-white);
 }
 
+.collection-filters__active {
+  padding: 0 0 var(--space-5);
+}
+
+.collection-filters__reset {
+  color: var(--color-black);
+}
+
+.collection-filters__reset--inline {
+  width: 100%;
+  min-height: 42px;
+  border: 1.5px solid var(--color-black);
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.collection-filters__reset--inline:hover {
+  background: var(--color-black);
+  color: var(--color-white);
+  opacity: 1;
+}
+
 .collection-filters__stock,
 .collection-filters__summary {
   min-height: 52px;
@@ -767,6 +949,43 @@
   font-size: var(--font-size-body);
   color: var(--color-black);
   cursor: pointer;
+}
+
+.collection-filters__choice--link {
+  grid-template-columns: auto 1fr;
+}
+
+.collection-filters__choice--link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.collection-filters__choice--link.is-active {
+  font-weight: var(--font-weight-medium);
+}
+
+.collection-filters__fake-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-black);
+  display: inline-block;
+  position: relative;
+}
+
+.collection-filters__choice--link.is-active .collection-filters__fake-checkbox {
+  background: var(--color-black);
+}
+
+.collection-filters__choice--link.is-active .collection-filters__fake-checkbox::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--color-white);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
 }
 
 .collection-filters__subcategory-link {
@@ -1271,10 +1490,16 @@
       "default": 24
     },
     {
+      "type": "checkbox",
+      "id": "use_manual_collection_menu",
+      "label": "Utiliser le menu manuel pour les pills",
+      "default": false
+    },
+    {
       "type": "link_list",
       "id": "collection_menu",
       "label": "Menu des pills collections",
-      "info": "Contrôle l'ordre des catégories affichées en pills. Laisser vide pour afficher toutes les collections."
+      "info": "Utilisé seulement si l'option manuelle est activée. Sinon, les pills affichent les sous-catégories du menu."
     },
     {
       "type": "link_list",

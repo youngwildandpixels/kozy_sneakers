@@ -1,6 +1,6 @@
 {%- comment -%} Hero Slideshow — fullwidth, image + CTA avec positionnement libre {%- endcomment -%}
 
-<section class="hero">
+<section class="hero" id="hero-{{ section.id }}" style="--hero-autoplay-duration: {{ section.settings.autoplay_delay }}s;">
   <div class="hero__track">
     {%- for block in section.blocks -%}
       {%- liquid
@@ -9,6 +9,12 @@
         assign mv = block.settings.mobile_vertical_position | default: v
         assign mh = block.settings.mobile_horizontal_align | default: h
         assign content_class = 'hero__content hero__content--v-' | append: v | append: ' hero__content--h-' | append: h | append: ' hero__content--mv-' | append: mv | append: ' hero__content--mh-' | append: mh
+        assign cta_mode = block.settings.cta_position_mode | default: 'text'
+        assign cta_v = block.settings.cta_vertical_position | default: v
+        assign cta_h = block.settings.cta_horizontal_align | default: h
+        assign cta_mv = block.settings.cta_mobile_vertical_position | default: cta_v
+        assign cta_mh = block.settings.cta_mobile_horizontal_align | default: cta_h
+        assign cta_class = 'hero__cta-position hero__cta-position--v-' | append: cta_v | append: ' hero__cta-position--h-' | append: cta_h | append: ' hero__cta-position--mv-' | append: cta_mv | append: ' hero__cta-position--mh-' | append: cta_mh
         assign overlay_style = block.settings.overlay_style | default: 'solid'
         assign mobile_overlay_style = block.settings.mobile_overlay_style | default: overlay_style
         assign overlay_class = 'hero__overlay hero__overlay--' | append: overlay_style | append: ' hero__overlay--m-' | append: mobile_overlay_style
@@ -55,7 +61,7 @@
             {%- if block.settings.title != blank -%}
               <h2 class="hero__title">{{ block.settings.title }}</h2>
             {%- endif -%}
-            {%- if block.settings.cta_label != blank -%}
+            {%- if block.settings.cta_label != blank and cta_mode == 'text' -%}
               <div class="hero__cta-wrap">
                 <a href="{{ block.settings.cta_link | default: routes.all_products_collection_url }}" class="hero__cta">
                   {{ block.settings.cta_label }}
@@ -64,14 +70,40 @@
             {%- endif -%}
           </div>
         </div>
+        {%- if block.settings.cta_label != blank and cta_mode == 'custom' -%}
+          <div class="{{ cta_class }}">
+            <a href="{{ block.settings.cta_link | default: routes.all_products_collection_url }}" class="hero__cta">
+              {{ block.settings.cta_label }}
+            </a>
+          </div>
+        {%- endif -%}
       </div>
     {%- endfor -%}
   </div>
 
   {%- if section.blocks.size > 1 -%}
-    <div class="hero__dots" aria-label="Navigation slides">
+    <button class="hero__arrow hero__arrow--prev" type="button" data-hero-prev aria-label="Slide précédente">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+    <button class="hero__arrow hero__arrow--next" type="button" data-hero-next aria-label="Slide suivante">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 6l6 6-6 6" />
+      </svg>
+    </button>
+    <div class="hero__progress" aria-label="Navigation slides">
       {%- for block in section.blocks -%}
-        <button class="hero__dot{% if forloop.first %} hero__dot--active{% endif %}" data-index="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"></button>
+        <button
+          class="hero__progress-button{% if forloop.first %} hero__progress-button--active{% endif %}"
+          type="button"
+          data-hero-progress
+          data-index="{{ forloop.index0 }}"
+          aria-label="Slide {{ forloop.index }}"
+          {% if forloop.first %}aria-current="true"{% endif %}
+        >
+          <span class="hero__progress-fill" aria-hidden="true"></span>
+        </button>
       {%- endfor -%}
     </div>
   {%- endif -%}
@@ -186,6 +218,27 @@
 
 .hero__cta-wrap { margin-top: var(--space-2); }
 
+.hero__cta-position {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  padding: 60px;
+  pointer-events: none;
+}
+
+.hero__cta-position .hero__cta {
+  pointer-events: auto;
+}
+
+.hero__cta-position--v-top    { align-items: flex-start; }
+.hero__cta-position--v-center { align-items: center; }
+.hero__cta-position--v-bottom { align-items: flex-end; }
+
+.hero__cta-position--h-left   { justify-content: flex-start; }
+.hero__cta-position--h-center { justify-content: center; }
+.hero__cta-position--h-right  { justify-content: flex-end; }
+
 .hero__cta {
   display: inline-flex;
   align-items: center;
@@ -202,30 +255,87 @@
 }
 .hero__cta:hover { background: transparent; color: var(--color-white); opacity: 1; }
 
-.hero__dots {
+.hero__progress {
   position: absolute;
   bottom: var(--space-6);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: var(--space-2);
-  z-index: 2;
+  gap: 8px;
+  width: min(300px, calc(100vw - 48px));
+  z-index: 3;
+  opacity: 0.72;
 }
 
-.hero__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.45);
-  transition: background 0.2s;
+.hero__progress-button {
+  position: relative;
+  flex: 1 1 0;
+  height: 2px;
   padding: 0;
+  overflow: hidden;
+  background: rgba(255,255,255,0.24);
+  border-radius: 9999px;
 }
-.hero__dot--active,
-.hero__dot:hover { background: var(--color-white); }
+
+.hero__progress-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: var(--color-white);
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.hero__progress-button--active .hero__progress-fill {
+  animation: hero-progress var(--hero-autoplay-duration) linear forwards;
+}
+
+@keyframes hero-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.hero__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  color: var(--color-white);
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+}
+
+.hero__arrow svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hero__arrow--prev { left: var(--space-6); }
+.hero__arrow--next { right: var(--space-6); }
+
+.hero__arrow:hover {
+  background: rgba(0,0,0,0.46);
+  border-color: var(--color-white);
+  opacity: 1;
+}
 
 @media (max-width: 768px) {
   .hero { min-height: 80vh; }
-  .hero__content { padding: var(--space-6); }
+  .hero__content,
+  .hero__cta-position { padding: var(--space-6); }
   .hero__title { font-size: clamp(24px, 8vw, 40px); }
   .hero__text-block { max-width: 100%; }
   .hero__overlay { opacity: var(--hero-overlay-mobile-opacity); }
@@ -245,6 +355,14 @@
   .hero__content--mh-center { justify-content: center; }
   .hero__content--mh-right  { justify-content: flex-end; }
 
+  .hero__cta-position--mv-top    { align-items: flex-start; }
+  .hero__cta-position--mv-center { align-items: center; }
+  .hero__cta-position--mv-bottom { align-items: flex-end; }
+
+  .hero__cta-position--mh-left   { justify-content: flex-start; }
+  .hero__cta-position--mh-center { justify-content: center; }
+  .hero__cta-position--mh-right  { justify-content: flex-end; }
+
   .hero__content--mh-left   .hero__text-block { align-items: flex-start; text-align: left; }
   .hero__content--mh-center .hero__text-block { align-items: center;     text-align: center; }
   .hero__content--mh-right  .hero__text-block { align-items: flex-end;   text-align: right; }
@@ -252,28 +370,89 @@
   .hero__content--mv-top {
     padding-top: max(var(--space-6), 15vh);
   }
+
+  .hero__progress {
+    bottom: var(--space-5);
+    width: min(220px, calc(100vw - 104px));
+    opacity: 0.62;
+  }
+
+  .hero__arrow {
+    top: auto;
+    bottom: calc(var(--space-5) - 12px);
+    width: 30px;
+    height: 30px;
+    background: rgba(0,0,0,0.12);
+    border-color: rgba(255,255,255,0.24);
+    transform: none;
+  }
+
+  .hero__arrow svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .hero__arrow--prev { left: var(--space-5); }
+  .hero__arrow--next { right: var(--space-5); }
 }
 {% endstylesheet %}
 
 <script>
 (function () {
-  var section = document.querySelector('.hero');
+  var section = document.getElementById('hero-{{ section.id }}');
   if (!section) return;
   var slides = section.querySelectorAll('.hero__slide');
-  var dots   = section.querySelectorAll('.hero__dot');
+  var progressButtons = section.querySelectorAll('[data-hero-progress]');
+  var prevButton = section.querySelector('[data-hero-prev]');
+  var nextButton = section.querySelector('[data-hero-next]');
   if (slides.length <= 1) return;
   var current = 0;
+  var delay = {{ section.settings.autoplay_delay | times: 1000 }};
+  var timer;
+
   function goTo(i) {
     slides[current].classList.remove('hero__slide--active');
-    dots[current].classList.remove('hero__dot--active');
-    current = i;
+    progressButtons[current].classList.remove('hero__progress-button--active');
+    progressButtons[current].removeAttribute('aria-current');
+    current = (i + slides.length) % slides.length;
     slides[current].classList.add('hero__slide--active');
-    dots[current].classList.add('hero__dot--active');
+    progressButtons[current].setAttribute('aria-current', 'true');
+    requestAnimationFrame(function () {
+      progressButtons[current].classList.add('hero__progress-button--active');
+    });
   }
-  dots.forEach(function(dot) {
-    dot.addEventListener('click', function() { goTo(Number(dot.dataset.index)); });
+
+  function restartAutoplay() {
+    window.clearInterval(timer);
+    timer = window.setInterval(function() {
+      goTo(current + 1);
+    }, delay);
+  }
+
+  function goToAndRestart(i) {
+    goTo(i);
+    restartAutoplay();
+  }
+
+  progressButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      goToAndRestart(Number(button.dataset.index));
+    });
   });
-  setInterval(function() { goTo((current + 1) % slides.length); }, {{ section.settings.autoplay_delay | times: 1000 }});
+
+  if (prevButton) {
+    prevButton.addEventListener('click', function() {
+      goToAndRestart(current - 1);
+    });
+  }
+
+  if (nextButton) {
+    nextButton.addEventListener('click', function() {
+      goToAndRestart(current + 1);
+    });
+  }
+
+  restartAutoplay();
 })();
 </script>
 
@@ -295,6 +474,60 @@
         { "type": "text",         "id": "title",   "label": "Titre",       "default": "DÉCOUVREZ LA SÉLECTION" },
         { "type": "url",          "id": "cta_link","label": "Lien CTA" },
         { "type": "text",         "id": "cta_label","label": "Texte CTA",  "default": "DÉCOUVRIR" },
+        {
+          "type": "select",
+          "id": "cta_position_mode",
+          "label": "Position du CTA",
+          "options": [
+            { "value": "text", "label": "Sous le texte" },
+            { "value": "custom", "label": "Position personnalisée" }
+          ],
+          "default": "text"
+        },
+        {
+          "type": "select",
+          "id": "cta_vertical_position",
+          "label": "Position verticale CTA",
+          "options": [
+            { "value": "top",    "label": "Haut" },
+            { "value": "center", "label": "Milieu" },
+            { "value": "bottom", "label": "Bas" }
+          ],
+          "default": "bottom"
+        },
+        {
+          "type": "select",
+          "id": "cta_horizontal_align",
+          "label": "Alignement horizontal CTA",
+          "options": [
+            { "value": "left",   "label": "Gauche" },
+            { "value": "center", "label": "Centre" },
+            { "value": "right",  "label": "Droite" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "select",
+          "id": "cta_mobile_vertical_position",
+          "label": "Position verticale CTA mobile",
+          "options": [
+            { "value": "top",    "label": "Haut" },
+            { "value": "center", "label": "Milieu" },
+            { "value": "bottom", "label": "Bas" }
+          ],
+          "default": "bottom"
+        },
+        {
+          "type": "select",
+          "id": "cta_mobile_horizontal_align",
+          "label": "Alignement horizontal CTA mobile",
+          "options": [
+            { "value": "left",   "label": "Gauche" },
+            { "value": "center", "label": "Centre" },
+            { "value": "right",  "label": "Droite" }
+          ],
+          "default": "center"
+        },
         {
           "type": "select",
           "id": "vertical_position",

@@ -6,7 +6,7 @@
   assign coll = section.settings.collection
   assign user_limit = section.settings.products_to_show
   assign mobile_user_limit = section.settings.products_to_show_mobile | default: user_limit
-  assign max_items = 24
+  assign max_items = 32
   if user_limit > max_items
     assign limit = max_items
   else
@@ -47,7 +47,7 @@
             <img
               src="{{ product.featured_image | image_url: width: 500 }}"
               srcset="{{ product.featured_image | image_url: width: 300 }} 300w, {{ product.featured_image | image_url: width: 500 }} 500w"
-              sizes="(max-width: 768px) 33vw, 16vw"
+              sizes="(max-width: 768px) 33vw, 12.5vw"
               alt="{{ product.featured_image.alt | default: product.title | escape }}"
               loading="lazy"
               width="500"
@@ -89,10 +89,10 @@
   margin: 0;
 }
 
-/* Grid 6 colonnes x 4 rangees - full width */
+/* Grid 8 colonnes x 4 rangees - full width */
 .pmosaic__grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   grid-auto-rows: 1fr;
   gap: var(--space-4) var(--space-6);
   width: 100%;
@@ -162,7 +162,7 @@
       "type": "range",
       "id": "products_to_show",
       "label": "Produits à afficher",
-      "info": "Plafonné automatiquement à 24 pour tenir en 4 rangées.",
+      "info": "Plafonné automatiquement à 32 pour tenir en 4 rangées.",
       "min": 12,
       "max": 32,
       "step": 2,

@@ -15,32 +15,91 @@
         "slide_1": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/Campagne_ADS_2.webp",
-            "label": "Nouvelle collection",
-            "title": "DÉCOUVREZ LA SÉLECTION",
-            "cta_link": "/collections/all",
+            "image": "shopify://shop_images/hf_20260527_141802_76dbba18-4584-4de7-b844-03b74da0aa9c.webp",
+            "image_mobile": "shopify://shop_images/travis_mobile.webp",
+            "label": "Nouvelle collab",
+            "title": "AJ1 TRAVIS SCOTT PINK",
+            "cta_link": "shopify://collections/air-jordan-1-low-og-sp-travis-scott",
             "cta_label": "DÉCOUVRIR",
+            "cta_position_mode": "text",
+            "cta_vertical_position": "bottom",
+            "cta_horizontal_align": "center",
+            "cta_mobile_vertical_position": "bottom",
+            "cta_mobile_horizontal_align": "center",
             "vertical_position": "top",
             "horizontal_align": "left",
-            "overlay_opacity": 30
+            "mobile_vertical_position": "top",
+            "mobile_horizontal_align": "left",
+            "overlay_style": "gradient-left",
+            "overlay_opacity": 20,
+            "mobile_overlay_style": "gradient-top",
+            "mobile_overlay_opacity": 30
+          }
+        },
+        "slide_3bPHND": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/bestellers_home.webp",
+            "label": "profitez-en",
+            "title": "Sélection à -200€",
+            "cta_link": "shopify://collections/promo",
+            "cta_label": "DÉCOUVRIR",
+            "cta_position_mode": "text",
+            "cta_vertical_position": "bottom",
+            "cta_horizontal_align": "center",
+            "cta_mobile_vertical_position": "bottom",
+            "cta_mobile_horizontal_align": "center",
+            "vertical_position": "top",
+            "horizontal_align": "left",
+            "mobile_vertical_position": "center",
+            "mobile_horizontal_align": "center",
+            "overlay_style": "gradient-top",
+            "overlay_opacity": 30,
+            "mobile_overlay_style": "solid",
+            "mobile_overlay_opacity": 30
+          }
+        },
+        "slide_qkJefa": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/essentials_home_6b932a42-7f57-4a41-b06f-d2f81718bf93.webp",
+            "label": "Nouvelle collection",
+            "title": "Essentials",
+            "cta_link": "",
+            "cta_label": "DÉCOUVRIR",
+            "cta_position_mode": "text",
+            "cta_vertical_position": "bottom",
+            "cta_horizontal_align": "center",
+            "cta_mobile_vertical_position": "bottom",
+            "cta_mobile_horizontal_align": "center",
+            "vertical_position": "top",
+            "horizontal_align": "left",
+            "mobile_vertical_position": "center",
+            "mobile_horizontal_align": "center",
+            "overlay_style": "gradient-top",
+            "overlay_opacity": 30,
+            "mobile_overlay_style": "solid",
+            "mobile_overlay_opacity": 30
           }
         }
       },
       "block_order": [
-        "slide_1"
+        "slide_1",
+        "slide_3bPHND",
+        "slide_qkJefa"
       ],
       "settings": {
-        "autoplay_delay": 5
+        "autoplay_delay": 8
       }
     },
     "featured_tabs": {
       "type": "featured-collection-tabs",
       "settings": {
-        "tab_1_label": "Bestsellers",
-        "collection_1": "sneakers",
-        "tab_2_label": "Nouveautés",
-        "collection_2": "sneakers",
-        "products_to_show": 4
+        "tab_1_label": "Nouveautés",
+        "collection_1": "nouveautes",
+        "tab_2_label": "Bestsellers",
+        "collection_2": "bestsellers",
+        "products_to_show": 10
       }
     },
     "brand_banners": {
@@ -49,25 +108,28 @@
         "brand_1": {
           "type": "brand",
           "settings": {
-            "brand_name": "Salomon",
+            "image": "shopify://shop_images/sneakers__home.webp",
+            "brand_name": "Sneakers",
             "cta_label": "Découvrir",
-            "link": ""
+            "link": "shopify://collections/sneakers"
           }
         },
         "brand_2": {
           "type": "brand",
           "settings": {
-            "brand_name": "Birkenstock",
+            "image": "shopify://shop_images/essentials_home_6b932a42-7f57-4a41-b06f-d2f81718bf93.webp",
+            "brand_name": "Essentials",
             "cta_label": "Découvrir",
-            "link": ""
+            "link": "shopify://collections/fear-of-god-essentials"
           }
         },
         "brand_3": {
           "type": "brand",
           "settings": {
-            "brand_name": "Nike",
+            "image": "shopify://shop_images/bestellers_home.webp",
+            "brand_name": "- 200 €",
             "cta_label": "Découvrir",
-            "link": ""
+            "link": "shopify://collections/promo"
           }
         }
       },
@@ -78,73 +140,62 @@
       ],
       "settings": {}
     },
+    "sneaker_cleaning_comparison_Lkbaa8": {
+      "type": "sneaker-cleaning-comparison",
+      "name": "Comparateur nettoyage",
+      "settings": {
+        "eyebrow": "Nettoyage sneakers",
+        "heading": "Profitez d'un service pro",
+        "text": "<p>Faites glisser la barre pour révéler le résultat après nettoyage.</p>",
+        "before_image": "shopify://shop_images/sale.webp",
+        "after_image": "shopify://shop_images/hf_20260521_100028_b809091f-5908-43ff-ad87-9d86a7b3e017_1.webp",
+        "before_label": "Avant",
+        "after_label": "Après",
+        "slider_start": 50,
+        "cta_label": "Découvrir le nettoyage",
+        "cta_link": "shopify://pages/nettoyage-1"
+      }
+    },
     "brand_story": {
       "type": "brand-story",
       "settings": {
-        "label": "Notre histoire",
-        "title": "The Last Step",
-        "text": "<p>Depuis 2010, The Last Step sélectionne les meilleures sneakers pour vous.</p>",
+        "label": "La boutique",
+        "title": "Kozy Sneakers",
+        "text": "<p>Kozy Sneakers sélectionne sneakers, textiles et accessoires avec soin, directement depuis Clermont-Ferrand. En boutique, on retrouve aussi du conseil et un service cleaning pour faire durer tes paires.</p>",
         "cta_label": "En savoir plus",
-        "cta_link": "/pages/about"
+        "cta_page": "la-boutique",
+        "cta_link": "/pages/about",
+        "image": "shopify://shop_images/IMG_2512_copie_f2c72960-642e-4b80-af4f-e83eb5848028.webp"
       }
     },
     "product_mosaic_igerER": {
       "type": "product-mosaic",
       "name": "Product Mosaic",
       "settings": {
-        "heading": "SLIDES",
-        "featured_product": "tls-air-jordan-4-retro-fear-2024",
-        "featured_video": "shopify://files/videos/hf_20260517_103757_29fda59c-75c7-443a-a9c6-b36024613f35 (1).mp4",
-        "collection": "sneakers",
-        "products_to_show": 24
+        "heading": "Gazelle",
+        "collection": "adidas-gazelle",
+        "products_to_show": 32,
+        "products_to_show_mobile": 12
       }
     },
-    "trust_bar": {
-      "type": "trust-bar",
+    "1782306318b8a950ad": {
+      "type": "apps",
       "blocks": {
-        "item_1": {
-          "type": "item",
+        "gsc_instagram_feed_instafeed_DNADhc": {
+          "type": "shopify://apps/gsc-instagram-feed/blocks/instafeed/96970b1b-b770-454f-b16b-51f47e1aa4ed",
           "settings": {
-            "icon": "store",
-            "title": "Click & Collect",
-            "subtitle": "Disponible en boutique"
-          }
-        },
-        "item_2": {
-          "type": "item",
-          "settings": {
-            "icon": "badge",
-            "title": "100% Authentiques",
-            "subtitle": "Produits garantis originaux"
-          }
-        },
-        "item_3": {
-          "type": "item",
-          "settings": {
-            "icon": "truck",
-            "title": "Livraison rapide",
-            "subtitle": "24/48h en France"
-          }
-        },
-        "item_4": {
-          "type": "item",
-          "settings": {
-            "icon": "headphones",
-            "title": "SAV réactif",
-            "subtitle": "Une question ? On répond"
+            "widget_id": "GSC-iOSoyAyhtKYjcTi"
           }
         }
       },
       "block_order": [
-        "item_1",
-        "item_2",
-        "item_3",
-        "item_4"
+        "gsc_instagram_feed_instafeed_DNADhc"
       ],
       "settings": {}
     },
     "newsletter": {
       "type": "newsletter",
+      "disabled": true,
       "settings": {
         "title": "Restez informé",
         "subtitle": "Nouveautés, offres exclusives, actualités sneakers.",
@@ -157,9 +208,10 @@
     "hero",
     "featured_tabs",
     "brand_banners",
+    "sneaker_cleaning_comparison_Lkbaa8",
     "brand_story",
     "product_mosaic_igerER",
-    "trust_bar",
+    "1782306318b8a950ad",
     "newsletter"
   ]
 }

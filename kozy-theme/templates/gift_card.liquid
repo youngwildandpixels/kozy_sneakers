@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}">
 <head>
+  {%- assign formatted_initial_value = gift_card.initial_value | money -%}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ 'gift_cards.issued.title' | t: value: gift_card.initial_value | money, shop: shop.name }}</title>
+  <title>{{ 'gift_cards.issued.title' | t: value: formatted_initial_value, shop: shop.name }}</title>
   {{ 'base.css' | asset_url | stylesheet_tag }}
 </head>
 <body>

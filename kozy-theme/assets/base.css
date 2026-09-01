@@ -204,13 +204,38 @@ a:hover { opacity: 0.6; }
 @media (max-width: 768px)  { .product-grid { grid-template-columns: repeat(2, 1fr); } }
 
 /* Homepage spacing */
+.template-index {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
 .template-index main > .shopify-section + .shopify-section {
   margin-top: var(--space-10);
+}
+
+.template-index main > .shopify-section:has(.cleaning-compare) {
+  margin-bottom: 0;
+}
+
+.template-index main > .shopify-section:has(.cleaning-compare) .cleaning-compare {
+  padding-bottom: 0;
+}
+
+.template-index main > .shopify-section:has(.cleaning-compare) + .shopify-section:has(.brand-story) {
+  margin-top: 0;
+}
+
+.template-index main > .shopify-section:has(.cleaning-compare) + .shopify-section:has(.brand-story) .brand-story {
+  padding-top: var(--space-10);
 }
 
 @media (max-width: 768px) {
   .template-index main > .shopify-section + .shopify-section {
     margin-top: var(--space-6);
+  }
+
+  .template-index main > .shopify-section:has(.cleaning-compare) + .shopify-section:has(.brand-story) .brand-story {
+    padding-top: var(--space-6);
   }
 }
 

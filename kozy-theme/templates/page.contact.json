@@ -8,23 +8,18 @@
  * ------------------------------------------------------------
  */
 {
-  "type": "header",
-  "name": "Header",
   "sections": {
-    "header": {
-      "type": "header",
+    "contact": {
+      "type": "page-contact",
       "settings": {
-        "logo": "shopify://shop_images/kozy_logo.png",
-        "logo_width": 80,
-        "menu": "main-menu",
-        "mega_card_1_collection": "",
-        "mega_card_1_label": "",
-        "mega_card_2_collection": "",
-        "mega_card_2_label": ""
+        "map_link": "https://www.google.com/maps/search/?api=1&query=14%20Rue%20Saint-Esprit%2C%20Clermont-Ferrand",
+        "instagram_link": "https://www.instagram.com/kozy.sneakers/",
+        "facebook_link": "https://www.facebook.com/p/Sneakers-Finder-100065433551858/",
+        "tiktok_link": "https://www.tiktok.com/@kozy.sneakers"
       }
     }
   },
   "order": [
-    "header"
+    "contact"
   ]
 }

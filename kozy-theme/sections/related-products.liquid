@@ -16,14 +16,28 @@
   </div>
 
   {%- if first_col != blank and first_col.products.size > 1 -%}
-    <div class="related__track" data-track>
-      {%- for p in first_col.products limit: limit -%}
-        {%- if p.id != product.id -%}
-          <div class="related__item">
-            {%- render 'product-card', product: p, show_vendor: true, show_secondary_image: true, lazy: 'lazy' -%}
-          </div>
-        {%- endif -%}
-      {%- endfor -%}
+    <div class="related__slider">
+      <button class="related__arrow related__arrow--prev" type="button" data-related-prev aria-label="Produits précédents">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+          <path d="M11.5 3.5L6 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <div class="related__track" data-track>
+        {%- for p in first_col.products limit: limit -%}
+          {%- if p.id != product.id -%}
+            <div class="related__item">
+              {%- render 'product-card', product: p, show_vendor: true, show_secondary_image: true, lazy: 'lazy' -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <button class="related__arrow related__arrow--next" type="button" data-related-next aria-label="Produits suivants">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+          <path d="M6.5 3.5L12 9l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
   {%- endif -%}
 </section>
@@ -51,17 +65,23 @@
 .related__cta {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border: 1.5px solid var(--color-black);
   border-radius: 9999px;
   padding: 10px 24px;
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
+  white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
 .related__cta:hover {
   background: var(--color-black);
   color: var(--color-white);
   opacity: 1;
+}
+
+.related__slider {
+  position: relative;
 }
 
 .related__track {
@@ -74,6 +94,42 @@
   padding: 0 var(--space-10);
 }
 .related__track::-webkit-scrollbar { display: none; }
+
+.related__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid var(--color-black);
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-black);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.related__arrow:hover {
+  background: var(--color-black);
+  color: var(--color-white);
+  opacity: 1;
+}
+
+.related__arrow:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.related__arrow--prev {
+  left: var(--space-4);
+}
+
+.related__arrow--next {
+  right: var(--space-4);
+}
 
 .related .product-card__media {
   aspect-ratio: 4 / 5;
@@ -101,8 +157,52 @@
   }
   .related__track { padding: 0 var(--space-5); }
   .related__item { flex: 0 0 calc(68% - 1px); }
+  .related__arrow { display: none; }
 }
 {% endstylesheet %}
+
+<script>
+(function () {
+  var sections = document.querySelectorAll('.related');
+  if (!sections.length) return;
+
+  sections.forEach(function (section) {
+    var track = section.querySelector('[data-track]');
+    var prev = section.querySelector('[data-related-prev]');
+    var next = section.querySelector('[data-related-next]');
+    if (!track || !prev || !next || track.dataset.arrowsInit === 'true') return;
+    track.dataset.arrowsInit = 'true';
+
+    function getStep() {
+      var item = track.querySelector('.related__item');
+      if (!item) return Math.round(track.clientWidth * 0.8);
+      var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return Math.round(item.offsetWidth + gap);
+    }
+
+    function updateArrows() {
+      var maxScroll = track.scrollWidth - track.clientWidth;
+      var isScrollable = maxScroll > 1;
+      prev.hidden = !isScrollable;
+      next.hidden = !isScrollable;
+      prev.disabled = track.scrollLeft <= 1;
+      next.disabled = track.scrollLeft >= maxScroll - 1;
+    }
+
+    prev.addEventListener('click', function () {
+      track.scrollBy({ left: -getStep(), behavior: 'smooth' });
+    });
+
+    next.addEventListener('click', function () {
+      track.scrollBy({ left: getStep(), behavior: 'smooth' });
+    });
+
+    track.addEventListener('scroll', updateArrows);
+    window.addEventListener('resize', updateArrows);
+    updateArrows();
+  });
+})();
+</script>
 
 {% schema %}
 {

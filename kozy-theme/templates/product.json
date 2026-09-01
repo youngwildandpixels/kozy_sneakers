@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
@@ -18,7 +27,30 @@
           }
         }
       },
-      "block_order": ["entretien", "livraison"]
+      "block_order": [
+        "entretien",
+        "livraison"
+      ],
+      "settings": {
+        "size_guide_url": "",
+        "low_stock_threshold": 5,
+        "google_rating": "4.9",
+        "google_review_count": "+100 avis",
+        "google_reviews_url": ""
+      }
+    },
+    "google_reviews": {
+      "type": "google-reviews",
+      "settings": {
+        "source": "metaobjects",
+        "metaobject_type": "google_review",
+        "business_name": "Kozy Sneakers",
+        "average_rating": "4.9",
+        "review_count": "252",
+        "reviews_to_show": 9,
+        "cta_label": "Voir tous les avis",
+        "cta_link": ""
+      }
     },
     "related": {
       "type": "related-products",
@@ -59,12 +91,44 @@
           }
         }
       },
-      "block_order": ["q1", "q2", "q3", "q4"]
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4"
+      ],
+      "settings": {
+        "heading": "Questions fréquentes",
+        "cta_label": "Voir la FAQ",
+        "cta_link": ""
+      }
     },
     "trust": {
       "type": "trust-bar",
       "settings": {}
+    },
+    "1788272647f3a4e115": {
+      "type": "apps",
+      "blocks": {
+        "gsc_instagram_feed_instafeed_3ePrVz": {
+          "type": "shopify://apps/gsc-instagram-feed/blocks/instafeed/96970b1b-b770-454f-b16b-51f47e1aa4ed",
+          "settings": {
+            "widget_id": "GSC-emNIxVLtKbEmbwy"
+          }
+        }
+      },
+      "block_order": [
+        "gsc_instagram_feed_instafeed_3ePrVz"
+      ],
+      "settings": {}
     }
   },
-  "order": ["main", "related", "faq", "trust"]
+  "order": [
+    "main",
+    "google_reviews",
+    "related",
+    "trust",
+    "faq",
+    "1788272647f3a4e115"
+  ]
 }

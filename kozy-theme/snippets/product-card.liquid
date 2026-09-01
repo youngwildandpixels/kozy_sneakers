@@ -7,9 +7,54 @@
   - lazy : boolean (lazy-load image)
 {%- endcomment -%}
 {%- liquid
+  assign sticker_limited_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/edition_limite.png?v=1788270525'
+  assign sticker_24_48_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/24_48_stickers.png?v=1788270350'
+  assign sticker_store_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/03_dispo_boutique.png?v=1788270036'
+  assign sticker_top_sales_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/11_top_ventes.png?v=1788270941'
   assign has_sale = false
   if product.compare_at_price > product.price
     assign has_sale = true
+  endif
+
+  assign fulfillment_type = product.metafields.custom.fulfillment_type.value | default: product.metafields.custom.fulfillment_type
+  assign fulfillment_type_downcase = fulfillment_type | downcase
+  assign is_partner_sourced = false
+  if fulfillment_type_downcase == 'scraper' or fulfillment_type_downcase == 'partner' or fulfillment_type_downcase == 'revendeur'
+    assign is_partner_sourced = true
+  endif
+  if product.tags contains 'stockx-sync' or product.tags contains 'scraper' or product.tags contains 'livraison-5-12' or product.tags contains 'revendeur-partenaire'
+    assign is_partner_sourced = true
+  endif
+
+  assign pickup_available = false
+  if product.available and is_partner_sourced == false
+    assign pickup_available = true
+  endif
+
+  assign is_new_product = false
+  assign is_best_seller_product = false
+  assign is_top_sales_product = false
+  for collection in product.collections
+    if collection.handle == 'nouveautes' or collection.handle == 'nouveaute' or collection.handle == 'new'
+      assign is_new_product = true
+    endif
+    if collection.handle == 'best-seller' or collection.handle == 'best-sellers' or collection.handle == 'best-selelr' or collection.handle == 'best-selelrs' or collection.handle == 'meilleures-ventes'
+      assign is_best_seller_product = true
+    endif
+    if collection.handle == 'top-ventes' or collection.handle == 'top-vente' or collection.handle == 'top-sales'
+      assign is_top_sales_product = true
+    endif
+  endfor
+  if product.tags contains 'best-seller' or product.tags contains 'best seller' or product.tags contains 'best-sellers' or product.tags contains 'best-selelr' or product.tags contains 'best selelr'
+    assign is_best_seller_product = true
+  endif
+  if product.tags contains 'top-ventes' or product.tags contains 'top vente' or product.tags contains 'top-vente'
+    assign is_top_sales_product = true
+  endif
+
+  assign is_limited_product = false
+  if product.tags contains 'edition-limitee' or product.tags contains 'édition limitée' or product.tags contains 'rare' or product.tags contains 'cote' or product.tags contains 'coté'
+    assign is_limited_product = true
   endif
 
   assign secondary_image = blank
@@ -23,6 +68,24 @@
       {%- if has_sale -%}
         <span class="badge badge--promo">PROMO</span>
       {%- endif -%}
+      <div class="product-card__stickers product-card__stickers--left" aria-label="Informations produit">
+        {%- if is_limited_product -%}
+          <img class="product-card__sticker" src="{{ sticker_limited_url }}" alt="Edition limitée" width="72" height="72" loading="lazy">
+        {%- elsif is_best_seller_product -%}
+          <span class="product-card__pill product-card__pill--best">Best seller</span>
+        {%- elsif is_top_sales_product -%}
+          <img class="product-card__sticker" src="{{ sticker_top_sales_url }}" alt="Top ventes" width="72" height="72" loading="lazy">
+        {%- elsif is_new_product -%}
+          <span class="product-card__pill">Nouveauté</span>
+        {%- elsif pickup_available -%}
+          <img class="product-card__sticker" src="{{ sticker_store_url }}" alt="Disponible en boutique" width="72" height="72" loading="lazy">
+        {%- endif -%}
+      </div>
+      {%- unless is_partner_sourced -%}
+        <div class="product-card__stickers product-card__stickers--right" aria-label="Livraison">
+          <img class="product-card__sticker" src="{{ sticker_24_48_url }}" alt="Livraison 24/48h" width="72" height="72" loading="lazy">
+        </div>
+      {%- endunless -%}
       {%- if product.featured_image != blank -%}
         <img
           src="{{ product.featured_image | image_url: width: 600 }}"
