@@ -8,10 +8,6 @@
   assign product_form_id = 'product-form-' | append: section.id
   assign google_reviews_fallback_url = 'https://www.google.com/search?sca_esv=492d5a6e2d17a115&rlz=1C5CHFA_enFR1149FR1149&sxsrf=APpeQnslYDSVUs9tOybbwKnOz8zlSuvT0Q:1788269080910&q=kozy+sneakers+avis&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_0eI5CCQItwg5Po1kDvrQK4EHNxWZ4ONOx26PI5buyY8pQMiw6SITwJS8gGy8KQZtAntAes%3D&uds=AJ5uw1-YMpuyF7uCL7tivJR8dYckeVbchtmlkVlgeMm2DkRcVVp4HCIru9GTyez6tCDZGGCNkIOkupmNcQs6rkZ7Sqz9pclWXBrAeBsTZYTdPY-IQXE-V4U&sa=X&ved=2ahUKEwih_NG6vc2WAxVFaqQEHUCjHjgQ3PALegQILhAF&biw=1672&bih=898&dpr=1'
   assign google_reviews_url = section.settings.google_reviews_url | default: google_reviews_fallback_url
-  assign sticker_limited_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/edition_limite.png?v=1788270525'
-  assign sticker_24_48_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/24_48_stickers.png?v=1788270350'
-  assign sticker_store_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/03_dispo_boutique.png?v=1788270036'
-  assign sticker_top_sales_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/11_top_ventes.png?v=1788270941'
   assign product_type_downcase = product.type | downcase
   assign is_sneaker = false
   if product_type_downcase == 'sneakers'
@@ -94,20 +90,20 @@
 
         <div class="pgallery__stickers pgallery__stickers--left" aria-label="Informations produit">
           {%- if is_limited_product -%}
-            <img class="pgallery__sticker" src="{{ sticker_limited_url }}" alt="Edition limitée" width="112" height="112" loading="eager">
+            <span class="pgallery__pill">Edition limitée</span>
           {%- elsif is_best_seller_product -%}
             <span class="pgallery__pill pgallery__pill--best">Best seller</span>
           {%- elsif is_top_sales_product -%}
-            <img class="pgallery__sticker" src="{{ sticker_top_sales_url }}" alt="Top ventes" width="112" height="112" loading="eager">
+            <span class="pgallery__pill">Top ventes</span>
           {%- elsif is_new_product -%}
             <span class="pgallery__pill">Nouveauté</span>
           {%- elsif pickup_available -%}
-            <img class="pgallery__sticker" src="{{ sticker_store_url }}" alt="Disponible en boutique" width="112" height="112" loading="eager">
+            <span class="pgallery__pill">Dispo en boutique</span>
           {%- endif -%}
         </div>
         {%- unless is_partner_sourced -%}
           <div class="pgallery__stickers pgallery__stickers--right" aria-label="Livraison">
-            <img class="pgallery__sticker" src="{{ sticker_24_48_url }}" alt="Livraison 24/48h" width="112" height="112" loading="eager">
+            <span class="pgallery__pill">24/48h</span>
           </div>
         {%- endunless -%}
 
@@ -517,12 +513,6 @@
   right: var(--space-5);
   align-items: flex-end;
 }
-.pgallery__sticker {
-  display: block;
-  width: clamp(74px, 8vw, 112px);
-  height: auto;
-}
-
 .pgallery__pill {
   display: inline-flex;
   align-items: center;
@@ -1149,10 +1139,6 @@
 
   .pgallery__stickers--right {
     right: var(--space-5);
-  }
-
-  .pgallery__sticker {
-    width: 68px;
   }
 
   .pgallery__pill {

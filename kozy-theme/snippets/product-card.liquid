@@ -7,10 +7,6 @@
   - lazy : boolean (lazy-load image)
 {%- endcomment -%}
 {%- liquid
-  assign sticker_limited_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/edition_limite.png?v=1788270525'
-  assign sticker_24_48_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/24_48_stickers.png?v=1788270350'
-  assign sticker_store_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/03_dispo_boutique.png?v=1788270036'
-  assign sticker_top_sales_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/11_top_ventes.png?v=1788270941'
   assign has_sale = false
   if product.compare_at_price > product.price
     assign has_sale = true
@@ -70,20 +66,20 @@
       {%- endif -%}
       <div class="product-card__stickers product-card__stickers--left" aria-label="Informations produit">
         {%- if is_limited_product -%}
-          <img class="product-card__sticker" src="{{ sticker_limited_url }}" alt="Edition limitée" width="72" height="72" loading="lazy">
+          <span class="product-card__pill">Edition limitée</span>
         {%- elsif is_best_seller_product -%}
           <span class="product-card__pill product-card__pill--best">Best seller</span>
         {%- elsif is_top_sales_product -%}
-          <img class="product-card__sticker" src="{{ sticker_top_sales_url }}" alt="Top ventes" width="72" height="72" loading="lazy">
+          <span class="product-card__pill">Top ventes</span>
         {%- elsif is_new_product -%}
           <span class="product-card__pill">Nouveauté</span>
         {%- elsif pickup_available -%}
-          <img class="product-card__sticker" src="{{ sticker_store_url }}" alt="Disponible en boutique" width="72" height="72" loading="lazy">
+          <span class="product-card__pill">Dispo en boutique</span>
         {%- endif -%}
       </div>
       {%- unless is_partner_sourced -%}
         <div class="product-card__stickers product-card__stickers--right" aria-label="Livraison">
-          <img class="product-card__sticker" src="{{ sticker_24_48_url }}" alt="Livraison 24/48h" width="72" height="72" loading="lazy">
+          <span class="product-card__pill">24/48h</span>
         </div>
       {%- endunless -%}
       {%- if product.featured_image != blank -%}
