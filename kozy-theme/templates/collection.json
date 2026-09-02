@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
@@ -5,9 +14,42 @@
       "settings": {
         "products_per_page": 24
       }
+    },
+    "reassurance_marquee": {
+      "type": "reassurance-marquee",
+      "blocks": {
+        "authentic": {
+          "type": "item",
+          "settings": {
+            "icon": "badge",
+            "text": "Produits 100% authentiques"
+          }
+        },
+        "payment": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "text": "Paiement sécurisé"
+          }
+        },
+        "delivery": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "text": "Livraison rapide"
+          }
+        }
+      },
+      "block_order": [
+        "authentic",
+        "payment",
+        "delivery"
+      ],
+      "settings": {}
     }
   },
   "order": [
+    "reassurance_marquee",
     "main"
   ]
 }

@@ -114,7 +114,10 @@
     </div>
     <div class="product-card__info">
       {%- if show_vendor and product.vendor != blank -%}
-        <p class="product-card__brand">{{ product.vendor }}</p>
+        <p class="product-card__brand">
+          {%- render 'brand-logo', brand: product.vendor, class: 'product-card__brand-logo', width: 52, height: 20 -%}
+          <span>{{ product.vendor }}</span>
+        </p>
       {%- endif -%}
       <p class="product-card__name">{{ product.title }}</p>
       <div class="product-card__prices">

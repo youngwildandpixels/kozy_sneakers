@@ -51,17 +51,26 @@
                     {%- for child_link in link.links -%}
                       <div class="site-mega__column">
                         {%- if child_link.links != blank -%}
-                          <a href="{{ child_link.url }}" class="site-mega__heading">{{ child_link.title }}</a>
+                          <a href="{{ child_link.url }}" class="site-mega__heading">
+                            {%- render 'brand-logo', brand: child_link.title, class: 'site-mega__brand-logo', width: 58, height: 20 -%}
+                            <span>{{ child_link.title }}</span>
+                          </a>
                           <ul class="site-mega__list">
                             {%- for grandchild_link in child_link.links limit: 5 -%}
                               <li>
-                                <a href="{{ grandchild_link.url }}" class="site-mega__link">{{ grandchild_link.title }}</a>
+                                <a href="{{ grandchild_link.url }}" class="site-mega__link">
+                                  {%- render 'brand-logo', brand: grandchild_link.title, class: 'site-mega__brand-logo', width: 46, height: 16 -%}
+                                  <span>{{ grandchild_link.title }}</span>
+                                </a>
                               </li>
                             {%- endfor -%}
                           </ul>
                           <a href="{{ child_link.url }}" class="site-mega__all">Voir tout</a>
                         {%- else -%}
-                          <a href="{{ child_link.url }}" class="site-mega__link">{{ child_link.title }}</a>
+                          <a href="{{ child_link.url }}" class="site-mega__link">
+                            {%- render 'brand-logo', brand: child_link.title, class: 'site-mega__brand-logo', width: 46, height: 16 -%}
+                            <span>{{ child_link.title }}</span>
+                          </a>
                         {%- endif -%}
                       </div>
                     {%- endfor -%}
@@ -190,11 +199,19 @@
               <ul class="mobile-menu__sublist">
                 {%- for child_link in link.links -%}
                   <li>
-                    <a href="{{ child_link.url }}" class="mobile-menu__sublink">{{ child_link.title }}</a>
+                    <a href="{{ child_link.url }}" class="mobile-menu__sublink">
+                      {%- render 'brand-logo', brand: child_link.title, class: 'mobile-menu__brand-logo', width: 42, height: 16 -%}
+                      <span>{{ child_link.title }}</span>
+                    </a>
                     {%- if child_link.links != blank -%}
                       <ul class="mobile-menu__grandlist">
                         {%- for grandchild_link in child_link.links -%}
-                          <li><a href="{{ grandchild_link.url }}" class="mobile-menu__grandlink">{{ grandchild_link.title }}</a></li>
+                          <li>
+                            <a href="{{ grandchild_link.url }}" class="mobile-menu__grandlink">
+                              {%- render 'brand-logo', brand: grandchild_link.title, class: 'mobile-menu__brand-logo', width: 42, height: 16 -%}
+                              <span>{{ grandchild_link.title }}</span>
+                            </a>
+                          </li>
                         {%- endfor -%}
                       </ul>
                     {%- endif -%}
@@ -383,6 +400,9 @@
 }
 
 .site-mega__heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--color-black);
   font-size: 18px;
   font-weight: var(--font-weight-bold);
@@ -398,11 +418,28 @@
 
 .site-mega__link,
 .site-mega__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   color: var(--color-black);
   font-size: 14px;
   font-weight: var(--font-weight-regular);
   line-height: 1.2;
   text-transform: uppercase;
+}
+
+.site-mega__brand-logo {
+  display: block;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 46px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.site-mega__heading .site-mega__brand-logo {
+  max-width: 58px;
+  height: 17px;
 }
 
 .site-mega__link:hover,
@@ -785,6 +822,9 @@ body.search-open {
   }
 
   .mobile-menu__sublink {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     color: var(--color-black);
     font-size: 15px;
     font-weight: var(--font-weight-medium);
@@ -798,10 +838,22 @@ body.search-open {
   }
 
   .mobile-menu__grandlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     color: var(--color-black);
     font-size: 13px;
     font-weight: var(--font-weight-medium);
     text-transform: uppercase;
+  }
+
+  .mobile-menu__brand-logo {
+    display: block;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 42px;
+    height: 13px;
+    object-fit: contain;
   }
 
   body.menu-open {

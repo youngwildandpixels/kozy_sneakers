@@ -213,6 +213,18 @@ a:hover { opacity: 0.6; }
   margin-top: var(--space-10);
 }
 
+.template-index main > .shopify-section:has(.brand-story) + .shopify-section:has(.google-reviews) {
+  margin-top: 0;
+}
+
+.template-index main > .shopify-section:has(.google-reviews) + .shopify-section {
+  margin-top: 0;
+}
+
+.template-index main > .shopify-section:has(.reassurance-marquee) + .shopify-section {
+  margin-top: 0;
+}
+
 .template-index main > .shopify-section:has(.cleaning-compare) {
   margin-bottom: 0;
 }

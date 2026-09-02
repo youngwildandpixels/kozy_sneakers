@@ -9,6 +9,44 @@
  */
 {
   "sections": {
+    "reassurance_marquee_kRY9jx": {
+      "type": "reassurance-marquee",
+      "blocks": {
+        "item_ae78qr": {
+          "type": "item",
+          "settings": {
+            "icon": "badge",
+            "text": "Produits 100% authentiques"
+          }
+        },
+        "item_hah49J": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "text": "Paiement sécurisé"
+          }
+        },
+        "item_4kzpkQ": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "text": "Livraison rapide"
+          }
+        }
+      },
+      "block_order": [
+        "item_ae78qr",
+        "item_hah49J",
+        "item_4kzpkQ"
+      ],
+      "name": "Réassurance défilante",
+      "settings": {
+        "background_color": "#000000",
+        "text_color": "#ffffff",
+        "speed": 28,
+        "accessibility_label": "Avantages Kozy Sneakers"
+      }
+    },
     "hero": {
       "type": "hero-slideshow",
       "blocks": {
@@ -24,12 +62,12 @@
             "cta_position_mode": "text",
             "cta_vertical_position": "bottom",
             "cta_horizontal_align": "center",
-            "cta_mobile_vertical_position": "bottom",
+            "cta_mobile_vertical_position": "center",
             "cta_mobile_horizontal_align": "center",
             "vertical_position": "top",
             "horizontal_align": "left",
-            "mobile_vertical_position": "top",
-            "mobile_horizontal_align": "left",
+            "mobile_vertical_position": "center",
+            "mobile_horizontal_align": "center",
             "overlay_style": "gradient-left",
             "overlay_opacity": 20,
             "mobile_overlay_style": "gradient-top",
@@ -161,7 +199,7 @@
       "settings": {
         "label": "La boutique",
         "title": "Kozy Sneakers",
-        "text": "<p>Kozy Sneakers sélectionne sneakers, textiles et accessoires avec soin, directement depuis Clermont-Ferrand. En boutique, on retrouve aussi du conseil et un service cleaning pour faire durer tes paires.</p>",
+        "text": "<p>Kozy Sneakers sélectionne sneakers, textiles et accessoires avec soin, directement depuis <strong>Clermont-Ferrand</strong>. En boutique, on retrouve aussi du conseil et un service cleaning pour faire durer tes paires.</p>",
         "cta_label": "En savoir plus",
         "cta_page": "la-boutique",
         "cta_link": "/pages/about",
@@ -176,6 +214,62 @@
         "collection": "adidas-gazelle",
         "products_to_show": 32,
         "products_to_show_mobile": 12
+      }
+    },
+    "google_reviews_KRb3mw": {
+      "type": "google-reviews",
+      "blocks": {
+        "review_qFpm6e": {
+          "type": "review",
+          "settings": {
+            "reviewer_name": "Client Google",
+            "rating": 5,
+            "body": "<p>Super boutique, équipe accueillante et très bons conseils.</p>",
+            "date": "Il y a 2 semaines",
+            "location": "",
+            "review_url": ""
+          }
+        },
+        "review_XjbJXD": {
+          "type": "review",
+          "settings": {
+            "reviewer_name": "Client Google",
+            "rating": 5,
+            "body": "<p>Très bonne expérience, livraison rapide et produit conforme.</p>",
+            "date": "Il y a 1 mois",
+            "location": "",
+            "review_url": ""
+          }
+        },
+        "review_3UkeFb": {
+          "type": "review",
+          "settings": {
+            "reviewer_name": "Client Google",
+            "rating": 5,
+            "body": "<p>Accueil au top et sélection de sneakers vraiment soignée.</p>",
+            "date": "Il y a 3 mois",
+            "location": "",
+            "review_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "review_qFpm6e",
+        "review_XjbJXD",
+        "review_3UkeFb"
+      ],
+      "name": "Google Reviews",
+      "settings": {
+        "source": "google_places",
+        "google_place_id": "ChIJ1S0GlaIb90cR5TgeezyMVj8",
+        "google_api_key": "AIzaSyABBoC9yfJQuQzIaxrxSJUBqWivrZOTM8E",
+        "metaobject_type": "google_review",
+        "business_name": "Kozy Sneakers",
+        "average_rating": "4.9",
+        "review_count": "252",
+        "reviews_to_show": 10,
+        "cta_label": "Voir tous les avis",
+        "cta_link": ""
       }
     },
     "1782306318b8a950ad": {
@@ -202,16 +296,55 @@
         "placeholder": "Votre adresse email",
         "button_label": "S'inscrire"
       }
+    },
+    "trust_bar_JPiELG": {
+      "type": "trust-bar",
+      "blocks": {
+        "item_3QPxG4": {
+          "type": "item",
+          "settings": {
+            "icon": "badge",
+            "title": "Produits authentiques",
+            "subtitle": "Sélection vérifiée par Kozy"
+          }
+        },
+        "item_frJ4fY": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "title": "Livraison claire",
+            "subtitle": "24/48h ou 5 à 12 jours"
+          }
+        },
+        "item_zcCG9t": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "title": "Paiement sécurisé",
+            "subtitle": "Commande protégée"
+          }
+        }
+      },
+      "block_order": [
+        "item_3QPxG4",
+        "item_frJ4fY",
+        "item_zcCG9t"
+      ],
+      "name": "Trust Bar",
+      "settings": {}
     }
   },
   "order": [
+    "reassurance_marquee_kRY9jx",
     "hero",
     "featured_tabs",
     "brand_banners",
     "sneaker_cleaning_comparison_Lkbaa8",
     "brand_story",
     "product_mosaic_igerER",
+    "google_reviews_KRb3mw",
     "1782306318b8a950ad",
-    "newsletter"
+    "newsletter",
+    "trust_bar_JPiELG"
   ]
 }

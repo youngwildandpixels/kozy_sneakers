@@ -132,12 +132,24 @@
 }
 
 .product-card__brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
   color: var(--color-gray-500);
   margin-bottom: 2px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.product-card__brand-logo {
+  display: block;
+  width: auto;
+  max-width: 52px;
+  height: 14px;
+  object-fit: contain;
 }
 
 .product-card__name {

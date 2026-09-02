@@ -1,0 +1,263 @@
+{%- comment -%} Reassurance Marquee — bandeau défilant texte + icônes {%- endcomment -%}
+
+{%- liquid
+  assign marquee_speed = section.settings.speed | default: 28
+  assign item_count = section.blocks.size
+-%}
+
+<section
+  class="reassurance-marquee"
+  style="
+    --reassurance-marquee-bg: {{ section.settings.background_color }};
+    --reassurance-marquee-text: {{ section.settings.text_color }};
+    --reassurance-marquee-speed: {{ marquee_speed }}s;
+  "
+>
+  <div class="reassurance-marquee__viewport" aria-label="{{ section.settings.accessibility_label | escape }}">
+    <div class="reassurance-marquee__track">
+      {%- for repeat in (1..8) -%}
+        <div class="reassurance-marquee__group" aria-hidden="{% if repeat == 1 %}false{% else %}true{% endif %}">
+          {%- if item_count > 0 -%}
+            {%- for block in section.blocks -%}
+              <div class="reassurance-marquee__item" {{ block.shopify_attributes }}>
+                <span class="reassurance-marquee__icon" aria-hidden="true">
+                  {%- case block.settings.icon -%}
+                    {%- when 'badge' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                    {%- when 'truck' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    {%- when 'lock' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></svg>
+                    {%- when 'shield' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                    {%- when 'star' -%}
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    {%- else -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  {%- endcase -%}
+                </span>
+                <span class="reassurance-marquee__text">{{ block.settings.text | escape }}</span>
+              </div>
+            {%- endfor -%}
+          {%- else -%}
+            <div class="reassurance-marquee__item">
+              <span class="reassurance-marquee__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </span>
+              <span class="reassurance-marquee__text">Produits 100% authentiques</span>
+            </div>
+            <div class="reassurance-marquee__item">
+              <span class="reassurance-marquee__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></svg>
+              </span>
+              <span class="reassurance-marquee__text">Paiement sécurisé</span>
+            </div>
+            <div class="reassurance-marquee__item">
+              <span class="reassurance-marquee__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              </span>
+              <span class="reassurance-marquee__text">Livraison rapide</span>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+.reassurance-marquee {
+  overflow: hidden;
+  border-top: 1px solid var(--color-black);
+  border-bottom: 1px solid var(--color-black);
+  background: var(--reassurance-marquee-bg, var(--color-black));
+  color: var(--reassurance-marquee-text, var(--color-white));
+}
+
+.reassurance-marquee__viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.reassurance-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: reassurance-marquee-scroll var(--reassurance-marquee-speed, 28s) linear infinite;
+  will-change: transform;
+}
+
+.reassurance-marquee:hover .reassurance-marquee__track {
+  animation-play-state: paused;
+}
+
+.reassurance-marquee__group {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: clamp(28px, 5vw, 72px);
+  padding: 13px clamp(28px, 5vw, 72px) 13px 0;
+}
+
+.reassurance-marquee__item {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.reassurance-marquee__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+}
+
+.reassurance-marquee__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.reassurance-marquee__text {
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+@keyframes reassurance-marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-12.5%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reassurance-marquee__track {
+    animation: none;
+  }
+
+  .reassurance-marquee__viewport {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .reassurance-marquee__viewport::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .reassurance-marquee__group {
+    gap: 32px;
+    padding: 11px 32px 11px 0;
+  }
+
+  .reassurance-marquee__icon {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+  }
+
+  .reassurance-marquee__text {
+    font-size: 11px;
+  }
+}
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Réassurance défilante",
+  "tag": "section",
+  "enabled_on": {
+    "templates": ["index", "product", "collection", "page"]
+  },
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Couleur de fond",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Couleur du texte et des icônes",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Vitesse de défilement",
+      "min": 12,
+      "max": 60,
+      "step": 2,
+      "unit": "s",
+      "default": 28
+    },
+    {
+      "type": "text",
+      "id": "accessibility_label",
+      "label": "Label accessibilité",
+      "default": "Avantages Kozy Sneakers"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Texte + icône",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icône",
+          "options": [
+            { "value": "badge", "label": "Authenticité" },
+            { "value": "lock", "label": "Paiement sécurisé" },
+            { "value": "truck", "label": "Livraison" },
+            { "value": "shield", "label": "Protection" },
+            { "value": "star", "label": "Étoile" },
+            { "value": "check", "label": "Check" }
+          ],
+          "default": "check"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texte",
+          "default": "Produits 100% authentiques"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Réassurance défilante",
+      "blocks": [
+        {
+          "type": "item",
+          "settings": {
+            "icon": "badge",
+            "text": "Produits 100% authentiques"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "text": "Paiement sécurisé"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "text": "Livraison rapide"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -2,6 +2,14 @@
 
 <section class="brand-story">
   <div class="brand-story__inner container">
+    <div class="brand-story__status" data-brand-story-status aria-live="polite">
+      <span class="brand-story__status-dot" data-brand-story-status-dot aria-hidden="true"></span>
+      <span class="brand-story__status-copy">
+        <span class="brand-story__status-state" data-brand-story-status-state>Horaires boutique</span>
+        <span class="brand-story__status-hours">Lundi 14h-19h · Mardi au samedi 11h-19h</span>
+      </span>
+    </div>
+
     <div class="brand-story__text">
       {%- if section.settings.label != blank -%}
         <p class="brand-story__label">{{ section.settings.label }}</p>
@@ -50,6 +58,7 @@
 }
 
 .brand-story__inner {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-16);
@@ -60,6 +69,58 @@
   padding: var(--space-12);
   background: var(--color-black);
   color: var(--color-white);
+}
+
+.brand-story__status {
+  position: absolute;
+  top: var(--space-5);
+  left: var(--space-5);
+  z-index: 2;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: min(320px, calc(100% - var(--space-10)));
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.58);
+  color: var(--color-white);
+  backdrop-filter: blur(8px);
+}
+
+.brand-story__status-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: #ff4d4d;
+}
+
+.brand-story__status-dot.is-open {
+  background: #26d96c;
+  box-shadow: 0 0 0 0 rgba(38,217,108,0.65);
+  animation: brand-story-status-pulse 1.4s infinite;
+}
+
+.brand-story__status-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.brand-story__status-state {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.brand-story__status-hours {
+  color: rgba(255,255,255,0.78);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
 }
 
 .brand-story__label {
@@ -129,17 +190,85 @@
   100% { opacity: 1; }
 }
 
+@keyframes brand-story-status-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(38,217,108,0.65); }
+  70% { box-shadow: 0 0 0 8px rgba(38,217,108,0); }
+  100% { box-shadow: 0 0 0 0 rgba(38,217,108,0); }
+}
+
 @media (max-width: 768px) {
   .brand-story { padding: var(--space-12) 0; }
   .brand-story__inner {
     grid-template-columns: 1fr;
     gap: var(--space-8);
     padding: var(--space-6);
+    padding-top: calc(var(--space-6) + 68px);
+  }
+  .brand-story__status {
+    top: var(--space-5);
+    left: var(--space-5);
+    right: var(--space-5);
+    max-width: none;
   }
   .brand-story__title { font-size: var(--font-size-h1); }
   .brand-story__media { order: -1; }
 }
 {% endstylesheet %}
+
+<script>
+(function () {
+  var section = document.querySelector('.brand-story');
+  if (!section) return;
+
+  var status = section.querySelector('[data-brand-story-status]');
+  var state = section.querySelector('[data-brand-story-status-state]');
+  var dot = section.querySelector('[data-brand-story-status-dot]');
+  if (!status || !state || !dot) return;
+
+  function getParisDate() {
+    return new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
+  }
+
+  function formatHour(hour) {
+    return hour + 'h';
+  }
+
+  function getNextOpening(day, hour) {
+    if (day === 0) return { label: 'demain', hour: 14 };
+    if (day === 1 && hour < 14) return { label: "aujourd'hui", hour: 14 };
+    if (day >= 2 && day <= 6 && hour < 11) return { label: "aujourd'hui", hour: 11 };
+    if (day >= 1 && day <= 5) return { label: 'demain', hour: 11 };
+    return { label: 'lundi', hour: 14 };
+  }
+
+  function updateStatus() {
+    var now = getParisDate();
+    var day = now.getDay();
+    var hour = now.getHours() + (now.getMinutes() / 60);
+    var isOpen = false;
+
+    if (day === 1) {
+      isOpen = hour >= 14 && hour < 19;
+    } else if (day >= 2 && day <= 6) {
+      isOpen = hour >= 11 && hour < 19;
+    }
+
+    dot.classList.toggle('is-open', isOpen);
+    status.classList.toggle('is-open', isOpen);
+
+    if (isOpen) {
+      state.textContent = 'Ouvert en ce moment';
+      return;
+    }
+
+    var nextOpening = getNextOpening(day, hour);
+    state.textContent = 'Fermé, rouvre ' + nextOpening.label + ' à ' + formatHour(nextOpening.hour);
+  }
+
+  updateStatus();
+  window.setInterval(updateStatus, 60000);
+})();
+</script>
 
 {% schema %}
 {

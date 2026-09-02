@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "current": {
     "color_background": "#FFFFFF",
@@ -5,6 +14,24 @@
     "color_border": "#E8E8E8",
     "color_promo": "#E8001B",
     "body_font_size": 14,
-    "page_width": 1280
+    "page_width": 1280,
+    "content_for_index": [],
+    "blocks": {
+      "7924418359578431505": {
+        "type": "shopify://apps/seoant-ai-seo/blocks/seoant-core/8e57283b-dcb0-4f7b-a947-fb5c57a0d59d",
+        "disabled": false,
+        "settings": {}
+      },
+      "13305437469741356523": {
+        "type": "shopify://apps/gsc-instagram-feed/blocks/embed/96970b1b-b770-454f-b16b-51f47e1aa4ed",
+        "disabled": false,
+        "settings": {}
+      },
+      "2611479755219051411": {
+        "type": "shopify://apps/appio-google-reviews/blocks/integration/25437a0d-2feb-4f5f-b07d-e313afa21656",
+        "disabled": false,
+        "settings": {}
+      }
+    }
   }
 }

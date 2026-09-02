@@ -17,7 +17,7 @@
   endif
 -%}
 
-<section class="google-reviews" id="GoogleReviews-{{ section.id }}">
+<section class="google-reviews" id="GoogleReviews-{{ section.id }}" data-google-reviews-section>
   <div class="google-reviews__inner container">
     <aside class="google-reviews__summary" aria-label="{{ section.settings.average_rating }} sur 5 sur Google">
       <div class="google-reviews__business-media">
@@ -37,13 +37,16 @@
         {%- endif -%}
       </div>
       <div class="google-reviews__business-copy">
-        <p class="google-reviews__business-name">{{ section.settings.business_name }}</p>
-        <div class="google-reviews__stars" aria-hidden="true">
-          {%- for i in (1..5) -%}
-            <span>★</span>
-          {%- endfor -%}
-        </div>
-        <p class="google-reviews__count">{{ section.settings.review_count }} Google Reviews</p>
+        <p class="google-reviews__business-name" data-google-reviews-business>{{ section.settings.business_name }}</p>
+        <img
+          class="google-reviews__logo"
+          src="https://cdn.shopify.com/s/files/1/0668/6700/3467/files/google_review.png?v=1788335407"
+          alt="Google Reviews"
+          width="116"
+          height="20"
+          loading="lazy"
+        >
+        <p class="google-reviews__count" data-google-reviews-count>{{ section.settings.review_count }} avis</p>
       </div>
     </aside>
 
@@ -55,7 +58,7 @@
       </button>
 
       <div class="google-reviews__track" data-google-reviews-track>
-        <div class="google-reviews__list">
+        <div class="google-reviews__list" data-google-reviews-list>
           {%- if has_metaobject_reviews -%}
             {%- for review in google_reviews limit: reviews_limit -%}
               {%- liquid
@@ -96,7 +99,15 @@
                       {%- endif -%}
                     </div>
                   </div>
-                  <span class="google-review__google" aria-hidden="true">G</span>
+                  <img
+                    class="google-review__google"
+                    src="https://cdn.shopify.com/s/files/1/0668/6700/3467/files/Logo-google-icon-PNG.png?v=1788269036"
+                    alt=""
+                    width="22"
+                    height="22"
+                    loading="lazy"
+                    aria-hidden="true"
+                  >
                 </div>
                 <div class="google-review__stars" aria-label="{{ rating }} sur 5">
                   {%- for i in (1..5) -%}
@@ -132,7 +143,15 @@
                         {%- endif -%}
                       </div>
                     </div>
-                    <span class="google-review__google" aria-hidden="true">G</span>
+                    <img
+                      class="google-review__google"
+                      src="https://cdn.shopify.com/s/files/1/0668/6700/3467/files/Logo-google-icon-PNG.png?v=1788269036"
+                      alt=""
+                      width="22"
+                      height="22"
+                      loading="lazy"
+                      aria-hidden="true"
+                    >
                   </div>
                   <div class="google-review__stars" aria-label="{{ rating }} sur 5">
                     {%- for i in (1..5) -%}
@@ -171,8 +190,17 @@
 .google-reviews {
   padding: var(--space-12) 0;
   border-top: 1px solid var(--color-gray-100);
-  background: var(--color-white);
+  background: var(--color-gray-100);
   overflow: hidden;
+}
+
+.shopify-section:has(+ .shopify-section .google-reviews) .brand-story {
+  padding-bottom: 0;
+}
+
+.shopify-section:has(.brand-story) + .shopify-section .google-reviews {
+  padding-top: var(--space-12);
+  border-top: 0;
 }
 
 .google-reviews__inner {
@@ -227,12 +255,11 @@
   line-height: 1.15;
 }
 
-.google-reviews__stars {
-  display: flex;
-  gap: 1px;
-  color: #fbbc04;
-  font-size: 14px;
-  line-height: 1;
+.google-reviews__logo {
+  display: block;
+  width: min(116px, 100%);
+  height: auto;
+  margin: 4px 0;
 }
 
 .google-reviews__count {
@@ -250,7 +277,8 @@
 
 .google-reviews__track {
   overflow-x: auto;
-  padding-bottom: var(--space-6);
+  margin: -6px;
+  padding: 6px 6px calc(var(--space-6) + 6px);
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -266,16 +294,25 @@
 }
 
 .google-review {
+  position: relative;
   display: flex;
-  flex: 0 0 min(390px, 38vw);
+  flex: 0 0 min(390px, calc((100% - (var(--space-4) * 2)) / 2.35));
   min-height: 238px;
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-6);
+  border: 1.5px solid var(--color-black);
   border-radius: 8px;
-  background: #f6f6f8;
+  background: var(--color-white);
+  box-shadow: 0 3px 0 var(--color-black);
   color: var(--color-black);
   scroll-snap-align: start;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.google-review:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--color-black);
 }
 
 .google-review__top {
@@ -331,16 +368,10 @@
 }
 
 .google-review__google {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 22px;
   height: 22px;
   flex: 0 0 22px;
-  color: #4285f4;
-  font-size: 21px;
-  font-weight: var(--font-weight-bold);
-  line-height: 1;
+  object-fit: contain;
 }
 
 .google-review__stars {
@@ -391,11 +422,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
+  border: 0.5px solid var(--color-gray-200);
   border-radius: 50%;
-  color: #777777;
+  background: var(--color-white);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  color: var(--color-black);
+  cursor: pointer;
   transform: translateY(-50%);
+  transition: background 0.15s, opacity 0.15s, color 0.15s;
 }
 
 .google-reviews__arrow svg {
@@ -408,12 +444,18 @@
   stroke-linejoin: round;
 }
 
+.google-reviews__arrow:hover {
+  background: var(--color-black);
+  color: var(--color-white);
+  opacity: 1;
+}
+
 .google-reviews__arrow--prev {
-  left: -34px;
+  left: calc(var(--space-4) * -1);
 }
 
 .google-reviews__arrow--next {
-  right: -34px;
+  right: calc(var(--space-4) * -1);
 }
 
 .google-reviews__arrow:disabled {
@@ -452,16 +494,18 @@
   }
 
   .google-reviews__summary {
+    justify-content: center;
     padding: 0 var(--space-5);
+    text-align: left;
   }
 
   .google-reviews__track {
     margin: 0 calc(var(--container-padding) * -1);
-    padding: 0 var(--container-padding) var(--space-6);
+    padding: 6px var(--container-padding) calc(var(--space-6) + 6px);
   }
 
   .google-review {
-    flex-basis: 84vw;
+    flex-basis: min(82vw, 330px);
     min-height: 236px;
     padding: var(--space-5);
   }
@@ -477,7 +521,14 @@
   var section = document.getElementById('GoogleReviews-{{ section.id }}');
   if (!section) return;
 
+  var config = {
+    source: {{ section.settings.source | json }},
+    apiKey: {{ section.settings.google_api_key | json }},
+    placeId: {{ section.settings.google_place_id | json }},
+    reviewsLimit: {{ section.settings.reviews_to_show | json }}
+  };
   var track = section.querySelector('[data-google-reviews-track]');
+  var list = section.querySelector('[data-google-reviews-list]');
   var prev = section.querySelector('[data-google-reviews-prev]');
   var next = section.querySelector('[data-google-reviews-next]');
   var dots = section.querySelectorAll('[data-google-reviews-dot]');
@@ -526,6 +577,128 @@
   track.addEventListener('scroll', updateControls);
   window.addEventListener('resize', updateControls);
   updateControls();
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, function (character) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[character];
+    });
+  }
+
+  function getReviewText(review) {
+    if (!review) return '';
+    if (typeof review.text === 'string') return review.text;
+    if (review.text && typeof review.text.text === 'string') return review.text.text;
+    if (review.text && typeof review.text.toString === 'function') return review.text.toString();
+    return '';
+  }
+
+  function getReviewAuthor(review) {
+    if (!review) return 'Client Google';
+    if (review.authorAttribution && review.authorAttribution.displayName) return review.authorAttribution.displayName;
+    if (review.author_name) return review.author_name;
+    if (review.authorName) return review.authorName;
+    return 'Client Google';
+  }
+
+  function getReviewDate(review) {
+    if (!review) return '';
+    return review.relative_time_description || review.relativePublishTimeDescription || review.relative_publish_time_description || review.publishTime || '';
+  }
+
+  function renderStars(rating) {
+    var normalizedRating = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+    var html = '';
+    for (var index = 1; index <= 5; index += 1) {
+      html += '<span class="' + (index <= normalizedRating ? 'is-filled' : '') + '">★</span>';
+    }
+    return html;
+  }
+
+  function renderReviews(place) {
+    if (!list || !place || !Array.isArray(place.reviews) || place.reviews.length === 0) return;
+
+    var businessName = section.querySelector('[data-google-reviews-business]');
+    var reviewCount = section.querySelector('[data-google-reviews-count]');
+    if (businessName && (place.displayName || place.name)) businessName.textContent = place.displayName || place.name;
+    if (reviewCount && (place.userRatingCount || place.user_ratings_total)) reviewCount.textContent = (place.userRatingCount || place.user_ratings_total) + ' avis';
+
+    list.innerHTML = place.reviews.slice(0, config.reviewsLimit || 3).map(function (review) {
+      var author = getReviewAuthor(review);
+      var initial = author.charAt(0).toUpperCase() || 'G';
+      var rating = review.rating || 5;
+      var text = getReviewText(review);
+      var date = getReviewDate(review);
+      var reviewUrl = review.googleMapsURI || review.googleMapsUri || review.author_url || place.url || place.googleMapsURI || place.googleMapsUri || '';
+      var avatarUrl = review.profile_photo_url || '';
+
+      return [
+        '<article class="google-review">',
+          '<div class="google-review__top">',
+            '<div class="google-review__author">',
+              '<div class="google-review__avatar">',
+                avatarUrl ? '<img src="' + escapeHtml(avatarUrl) + '" alt="' + escapeHtml(author) + '" loading="lazy">' : '<span>' + escapeHtml(initial) + '</span>',
+              '</div>',
+              '<div>',
+                '<h3 class="google-review__name">' + escapeHtml(author) + '</h3>',
+                date ? '<p class="google-review__meta">' + escapeHtml(date) + '</p>' : '',
+              '</div>',
+            '</div>',
+            '<img class="google-review__google" src="https://cdn.shopify.com/s/files/1/0668/6700/3467/files/Logo-google-icon-PNG.png?v=1788269036" alt="" width="22" height="22" loading="lazy" aria-hidden="true">',
+          '</div>',
+          '<div class="google-review__stars" aria-label="' + escapeHtml(rating) + ' sur 5">' + renderStars(rating) + '</div>',
+          text ? '<div class="google-review__body"><p>' + escapeHtml(text) + '</p></div>' : '',
+          reviewUrl ? '<a href="' + escapeHtml(reviewUrl) + '" class="google-review__link" target="_blank" rel="noopener">Read More</a>' : '',
+        '</article>'
+      ].join('');
+    }).join('');
+
+    updateControls();
+  }
+
+  function loadGoogleMaps() {
+    if (window.google && window.google.maps && window.google.maps.places) return Promise.resolve();
+    if (window.__kozyGoogleMapsPromise) return window.__kozyGoogleMapsPromise;
+
+    window.__kozyGoogleMapsPromise = new Promise(function (resolve, reject) {
+      var callbackName = '__kozyGoogleMapsReady';
+      window[callbackName] = resolve;
+
+      var script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(config.apiKey) + '&libraries=places&callback=' + callbackName + '&loading=async';
+      script.async = true;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+
+    return window.__kozyGoogleMapsPromise;
+  }
+
+  if (config.source === 'google_places' && config.apiKey && config.placeId) {
+    loadGoogleMaps()
+      .then(function () {
+        var service = new window.google.maps.places.PlacesService(document.createElement('div'));
+        service.getDetails({
+          placeId: config.placeId,
+          fields: ['name', 'rating', 'user_ratings_total', 'reviews', 'url']
+        }, function (place, status) {
+          if (status !== window.google.maps.places.PlacesServiceStatus.OK || !place) {
+            console.warn('Google Reviews could not be loaded', status);
+            return;
+          }
+
+          renderReviews(place);
+        });
+      })
+      .catch(function (error) {
+        console.warn('Google Reviews could not be loaded', error);
+      });
+  }
 })();
 </script>
 
@@ -541,8 +714,21 @@
       "default": "metaobjects",
       "options": [
         { "value": "metaobjects", "label": "Metaobjects" },
-        { "value": "blocks", "label": "Blocs manuels" }
+        { "value": "blocks", "label": "Blocs manuels" },
+        { "value": "google_places", "label": "Google Places API" }
       ]
+    },
+    {
+      "type": "text",
+      "id": "google_place_id",
+      "label": "Google Place ID",
+      "default": "ChIJ1S0GlaIb90cR5TgeezyMVj8"
+    },
+    {
+      "type": "text",
+      "id": "google_api_key",
+      "label": "Google API key",
+      "info": "Restreindre la clé au domaine du site et à Places API / Maps JavaScript API."
     },
     {
       "type": "text",

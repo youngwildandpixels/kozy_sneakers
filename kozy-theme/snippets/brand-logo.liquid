@@ -1,0 +1,47 @@
+{%- liquid
+  assign brand_name = brand | default: product.vendor | strip
+  assign brand_key = brand_name | handleize
+  assign brand_asset = blank
+  assign brand_src = blank
+
+  case brand_key
+    when 'adidas'
+      assign brand_asset = 'brand-adidas.svg'
+    when 'air-jordan', 'jordan'
+      assign brand_asset = 'brand-jordan.svg'
+    when 'new-balance', 'newbalance'
+      assign brand_asset = 'brand-newbalance.svg'
+    when 'nike'
+      assign brand_asset = 'brand-nike.svg'
+    when 'puma'
+      assign brand_asset = 'brand-puma.svg'
+    when 'reebok'
+      assign brand_asset = 'brand-reebok.svg'
+    when 'ami-paris'
+      assign brand_src = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/ami-paris-logo-png_seeklogo-659780.png?v=1788353601'
+    when 'asics'
+      assign brand_src = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/asics.png?v=1788354784'
+    when 'birkenstock', 'clarks', 'converse', 'crocs', 'mizuno', 'salomon', 'timberland', 'ugg', 'vans'
+      assign brand_src = 'https://cdn.simpleicons.org/' | append: brand_key | append: '/000000'
+    when 'hoka', 'hoka-one-one'
+      assign brand_src = 'https://cdn.simpleicons.org/hoka/000000'
+    when 'on', 'on-running'
+      assign brand_src = 'https://cdn.simpleicons.org/on/000000'
+  endcase
+
+  if brand_src == blank and brand_asset != blank
+    assign brand_src = brand_asset | asset_url
+  endif
+-%}
+
+{%- if brand_src != blank -%}
+  <img
+    class="{{ class | default: 'brand-logo' }}"
+    src="{{ brand_src }}"
+    alt="{{ brand_name | escape }}"
+    loading="lazy"
+    width="{{ width | default: 64 }}"
+    height="{{ height | default: 24 }}"
+    onerror="this.hidden=true"
+  >
+{%- endif -%}

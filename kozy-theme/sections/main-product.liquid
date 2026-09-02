@@ -200,7 +200,10 @@
       {%- if product.vendor != blank or style_id != blank -%}
         <div class="pinfo__meta">
           {%- if product.vendor != blank -%}
-            <p class="pinfo__vendor">{{ product.vendor }}</p>
+            <p class="pinfo__vendor">
+              {%- render 'brand-logo', brand: product.vendor, class: 'pinfo__brand-logo', width: 72, height: 28 -%}
+              <span>{{ product.vendor }}</span>
+            </p>
           {%- endif -%}
           {%- if style_id != blank -%}
             <p class="pinfo__sku">SKU : {{ style_id }}</p>
@@ -711,6 +714,9 @@
 }
 
 .pinfo__vendor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   flex: 1 1 auto;
   min-width: 0;
   font-size: var(--font-size-body);
@@ -719,6 +725,15 @@
   text-transform: uppercase;
   color: var(--color-black);
   overflow-wrap: anywhere;
+}
+
+.pinfo__brand-logo {
+  display: block;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 72px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .pinfo__title {

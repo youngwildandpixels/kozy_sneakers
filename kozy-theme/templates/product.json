@@ -9,6 +9,43 @@
  */
 {
   "sections": {
+    "reassurance_marquee": {
+      "type": "reassurance-marquee",
+      "blocks": {
+        "authentic": {
+          "type": "item",
+          "settings": {
+            "icon": "badge",
+            "text": "Produits 100% authentiques"
+          }
+        },
+        "payment": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "text": "Paiement sécurisé"
+          }
+        },
+        "delivery": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "text": "Livraison rapide"
+          }
+        }
+      },
+      "block_order": [
+        "authentic",
+        "payment",
+        "delivery"
+      ],
+      "settings": {
+        "background_color": "#000000",
+        "text_color": "#ffffff",
+        "speed": 28,
+        "accessibility_label": "Avantages Kozy Sneakers"
+      }
+    },
     "main": {
       "type": "main-product",
       "blocks": {
@@ -37,19 +74,6 @@
         "google_rating": "4.9",
         "google_review_count": "+100 avis",
         "google_reviews_url": ""
-      }
-    },
-    "google_reviews": {
-      "type": "google-reviews",
-      "settings": {
-        "source": "metaobjects",
-        "metaobject_type": "google_review",
-        "business_name": "Kozy Sneakers",
-        "average_rating": "4.9",
-        "review_count": "252",
-        "reviews_to_show": 9,
-        "cta_label": "Voir tous les avis",
-        "cta_link": ""
       }
     },
     "related": {
@@ -103,9 +127,21 @@
         "cta_link": ""
       }
     },
-    "trust": {
-      "type": "trust-bar",
-      "settings": {}
+    "google_reviews": {
+      "type": "google-reviews",
+      "settings": {
+        "source": "google_places",
+        "google_place_id": "ChIJ1S0GlaIb90cR5TgeezyMVj8",
+        "google_api_key": "AIzaSyABBoC9yfJQuQzIaxrxSJUBqWivrZOTM8E",
+        "metaobject_type": "google_review",
+        "business_name": "Kozy Sneakers",
+        "business_image": "shopify://shop_images/avis_google.webp",
+        "average_rating": "4.9",
+        "review_count": "252",
+        "reviews_to_show": 9,
+        "cta_label": "Voir tous les avis",
+        "cta_link": ""
+      }
     },
     "1788272647f3a4e115": {
       "type": "apps",
@@ -121,14 +157,19 @@
         "gsc_instagram_feed_instafeed_3ePrVz"
       ],
       "settings": {}
+    },
+    "trust": {
+      "type": "trust-bar",
+      "settings": {}
     }
   },
   "order": [
+    "reassurance_marquee",
     "main",
-    "google_reviews",
     "related",
-    "trust",
+    "google_reviews",
     "faq",
-    "1788272647f3a4e115"
+    "1788272647f3a4e115",
+    "trust"
   ]
 }
