@@ -328,6 +328,7 @@
           <button type="submit" name="add" class="btn btn--primary pinfo__btn"{% unless current.available %} disabled{% endunless %}>
             {%- if current.available -%}
               <span>Ajouter au panier</span>
+              <span class="pinfo__btn-separator" aria-hidden="true">·</span>
               <span class="pinfo__btn-price" data-add-to-cart-price>{{ current.price | money_without_trailing_zeros }}</span>
             {%- else -%}
               Rupture de stock
@@ -1090,6 +1091,9 @@
 }
 .pinfo__btn-price {
   white-space: nowrap;
+}
+.pinfo__btn-separator {
+  line-height: 1;
 }
 .pinfo__btn[disabled] {
   opacity: 0.5;
