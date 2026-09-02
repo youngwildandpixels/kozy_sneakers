@@ -103,7 +103,7 @@
         </div>
         {%- unless is_partner_sourced -%}
           <div class="pgallery__stickers pgallery__stickers--right" aria-label="Livraison">
-            <span class="pgallery__pill">24/48h</span>
+            <span class="pgallery__pill pgallery__pill--delivery">24/48h</span>
           </div>
         {%- endunless -%}
 
@@ -538,6 +538,11 @@
   background: var(--color-black);
   color: var(--color-white);
   box-shadow: 0 3px 0 var(--color-black);
+}
+
+.pgallery__pill--delivery {
+  background: var(--color-black);
+  color: var(--color-white);
 }
 
 .pgallery__main-img {

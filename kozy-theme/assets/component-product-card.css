@@ -99,6 +99,11 @@
   box-shadow: 0 3px 0 var(--color-black);
 }
 
+.product-card__pill--delivery {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
 /* Quick-add pill (hover) */
 .product-card__quick-add {
   position: absolute;
