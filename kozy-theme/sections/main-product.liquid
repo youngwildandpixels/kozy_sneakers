@@ -327,7 +327,8 @@
         <div class="pinfo__buttons">
           <button type="submit" name="add" class="btn btn--primary pinfo__btn"{% unless current.available %} disabled{% endunless %}>
             {%- if current.available -%}
-              Ajouter au panier · <span data-add-to-cart-price>{{ current.price | money_without_trailing_zeros }}</span>
+              <span>Ajouter au panier</span>
+              <span class="pinfo__btn-price" data-add-to-cart-price>{{ current.price | money_without_trailing_zeros }}</span>
             {%- else -%}
               Rupture de stock
             {%- endif -%}
@@ -1078,10 +1079,17 @@
   margin-top: var(--space-4);
 }
 .pinfo__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
   width: 100%;
   min-height: 58px;
   padding: 15px var(--space-6);
   font-weight: var(--font-weight-semibold);
+}
+.pinfo__btn-price {
+  white-space: nowrap;
 }
 .pinfo__btn[disabled] {
   opacity: 0.5;
