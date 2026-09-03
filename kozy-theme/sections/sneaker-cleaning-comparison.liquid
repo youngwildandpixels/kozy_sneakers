@@ -3,21 +3,10 @@
   assign before_image = section.settings.before_image
   assign after_image = section.settings.after_image
   assign slider_start = section.settings.slider_start | default: 50
-  assign cleaning_sticker_url = 'https://cdn.shopify.com/s/files/1/0668/6700/3467/files/21_nettoyage_pro.webp?v=1788271510'
 -%}
 
 <section class="cleaning-compare" id="cleaning-compare-{{ section.id }}">
   <div class="cleaning-compare__inner container">
-    <img
-      class="cleaning-compare__sticker"
-      src="{{ cleaning_sticker_url }}"
-      alt=""
-      width="220"
-      height="220"
-      loading="lazy"
-      aria-hidden="true"
-    >
-
     <div class="cleaning-compare__copy">
       {%- if section.settings.eyebrow != blank -%}
         <p class="cleaning-compare__eyebrow">{{ section.settings.eyebrow }}</p>
@@ -112,18 +101,6 @@
   padding-bottom: var(--space-12);
   background: var(--color-gray-100);
   overflow: visible;
-}
-
-.cleaning-compare__sticker {
-  position: absolute;
-  top: -42px;
-  right: var(--container-padding);
-  z-index: 5;
-  width: clamp(132px, 14vw, 220px);
-  height: auto;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
-  pointer-events: none;
-  transform: rotate(7deg);
 }
 
 .cleaning-compare__copy {
@@ -304,13 +281,7 @@
   }
 
   .cleaning-compare__inner {
-    padding-top: var(--space-16);
-  }
-
-  .cleaning-compare__sticker {
-    top: -26px;
-    right: var(--space-3);
-    width: 118px;
+    padding-top: var(--space-10);
   }
 
   .cleaning-compare__stage {
