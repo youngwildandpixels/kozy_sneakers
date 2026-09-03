@@ -265,6 +265,10 @@ a:hover { opacity: 0.6; }
     padding-top: var(--space-6);
   }
 
+  .template-index main > .shopify-section:has(.brand-story) + .shopify-section:has(.pmosaic) {
+    background: var(--color-white);
+  }
+
   .template-index main > .shopify-section:has(.cleaning-compare) + .shopify-section:has(.brand-story) .brand-story {
     padding-top: var(--space-6);
   }
