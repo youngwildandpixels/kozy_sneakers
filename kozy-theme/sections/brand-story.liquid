@@ -193,6 +193,10 @@
   transition: opacity 0.6s ease;
 }
 
+.brand-story__img:first-child {
+  opacity: 1;
+}
+
 .brand-story__img:nth-child(1) { animation-delay: 0s; }
 .brand-story__img:nth-child(2) { animation-delay: 4s; }
 .brand-story__img:nth-child(3) { animation-delay: 8s; }
@@ -230,8 +234,9 @@
   }
   .brand-story__title { font-size: var(--font-size-h1); }
   .brand-story__media {
-    min-height: 0;
-    aspect-ratio: 4 / 5;
+    height: min(92vw, 460px);
+    min-height: 320px;
+    aspect-ratio: auto;
   }
 }
 {% endstylesheet %}
