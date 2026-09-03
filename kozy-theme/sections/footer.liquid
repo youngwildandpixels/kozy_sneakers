@@ -118,33 +118,34 @@
         <p class="footer-title">Transporteurs</p>
         <ul class="footer-carriers" aria-label="Transporteurs">
           <li class="footer-carrier">
-            <span class="footer-carrier__logo footer-carrier__logo--colissimo" aria-hidden="true">
-              <svg viewBox="0 0 34 34" focusable="false">
-                <path d="M17 3 29 10v14l-12 7L5 24V10L17 3Z" fill="#f58220"/>
-                <path d="M17 3v14l12-7" fill="#ff9f1c"/>
-                <path d="M17 17 5 10v14l12 7V17Z" fill="#e36f14"/>
-              </svg>
-              <span>colissimo</span>
-            </span>
-            <span class="footer-carrier__name">Colissimo</span>
+            <img
+              class="footer-carrier__image"
+              src="{{ 'carrier-colissimo.svg' | asset_url }}"
+              alt="Colissimo"
+              width="140"
+              height="36"
+              loading="lazy"
+            >
           </li>
           <li class="footer-carrier">
-            <span class="footer-carrier__logo footer-carrier__logo--mondial" aria-hidden="true">
-              <span class="footer-carrier__mondial-mark">MR</span>
-              <span>mondial relay</span>
-            </span>
-            <span class="footer-carrier__name">Mondial Relay</span>
+            <img
+              class="footer-carrier__image"
+              src="{{ 'carrier-mondial-relay.svg' | asset_url }}"
+              alt="Mondial Relay"
+              width="140"
+              height="48"
+              loading="lazy"
+            >
           </li>
           <li class="footer-carrier">
-            <span class="footer-carrier__logo footer-carrier__logo--chrono" aria-hidden="true">
-              <svg viewBox="0 0 36 32" focusable="false">
-                <path d="M18 2 32 10v12l-14 8L4 22V10L18 2Z" fill="#009fe3"/>
-                <path d="M18 2v16l14-8" fill="#1aaee8"/>
-                <path d="M18 18 4 10v12l14 8V18Z" fill="#0087c7"/>
-              </svg>
-              <span>chronopost</span>
-            </span>
-            <span class="footer-carrier__name">Chronopost</span>
+            <img
+              class="footer-carrier__image"
+              src="{{ 'carrier-chronopost.svg' | asset_url }}"
+              alt="Chronopost"
+              width="140"
+              height="30"
+              loading="lazy"
+            >
           </li>
         </ul>
       </div>
@@ -312,7 +313,8 @@
 }
 
 .footer-carriers {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 0;
   padding: 0;
@@ -320,57 +322,21 @@
 }
 
 .footer-carrier {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 42px;
-  color: var(--color-white);
-}
-
-.footer-carrier__logo {
-  display: inline-flex;
-  flex: 0 0 42px;
-  width: 42px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  color: var(--color-white);
-  font-size: 5px;
-  font-weight: var(--font-weight-bold);
-  line-height: 1;
-  text-transform: lowercase;
-}
-
-.footer-carrier__logo svg {
-  display: block;
-  width: 22px;
-  height: 22px;
-}
-
-.footer-carrier__logo--mondial {
-  gap: 3px;
-  color: #c1005a;
-}
-
-.footer-carrier__mondial-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 20px;
+  width: 112px;
+  min-height: 38px;
+  padding: 7px 9px;
   border-radius: 4px;
-  background: #c1005a;
-  color: var(--color-white);
-  font-size: 10px;
-  letter-spacing: 0;
+  background: var(--color-white);
 }
 
-.footer-carrier__name {
-  color: var(--color-white);
-  font-size: 17px;
-  font-weight: var(--font-weight-medium);
-  line-height: 1.2;
+.footer-carrier__image {
+  display: block;
+  width: 100%;
+  max-height: 24px;
+  object-fit: contain;
 }
 
 .footer-locale {
