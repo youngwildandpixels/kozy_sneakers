@@ -233,6 +233,12 @@ a:hover { opacity: 0.6; }
   margin-top: 0;
 }
 
+.template-index main > .shopify-section:has(.brand-banners) + .shopify-section:has(.cleaning-compare) {
+  margin-top: 0;
+  padding-top: var(--space-10);
+  background: var(--color-gray-100);
+}
+
 .template-index main > .shopify-section:has(.cleaning-compare) {
   margin-bottom: 0;
 }
@@ -252,6 +258,10 @@ a:hover { opacity: 0.6; }
 @media (max-width: 768px) {
   .template-index main > .shopify-section + .shopify-section {
     margin-top: var(--space-6);
+  }
+
+  .template-index main > .shopify-section:has(.brand-banners) + .shopify-section:has(.cleaning-compare) {
+    padding-top: var(--space-6);
   }
 
   .template-index main > .shopify-section:has(.cleaning-compare) + .shopify-section:has(.brand-story) .brand-story {
