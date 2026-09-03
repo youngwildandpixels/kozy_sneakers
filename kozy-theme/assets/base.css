@@ -269,6 +269,14 @@ a:hover { opacity: 0.6; }
     background: var(--color-white);
   }
 
+  .template-index main > .shopify-section:has(.brand-story) .brand-story {
+    background: linear-gradient(
+      to bottom,
+      var(--color-gray-100) 0 calc(100% - var(--space-12)),
+      var(--color-white) calc(100% - var(--space-12)) 100%
+    );
+  }
+
   .template-index main > .shopify-section:has(.cleaning-compare) + .shopify-section:has(.brand-story) .brand-story {
     padding-top: var(--space-6);
   }
