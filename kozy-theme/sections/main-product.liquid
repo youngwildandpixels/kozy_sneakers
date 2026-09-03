@@ -334,6 +334,18 @@
               Rupture de stock
             {%- endif -%}
           </button>
+          {%- if shop.enabled_payment_types.size > 0 -%}
+            <div class="pinfo__payments" aria-label="Moyens de paiement acceptés">
+              <span class="pinfo__payments-label">Paiement sécurisé</span>
+              <ul class="pinfo__payments-list">
+                {%- for type in shop.enabled_payment_types -%}
+                  <li class="pinfo__payment">
+                    {{ type | payment_type_svg_tag: class: 'pinfo__payment-icon' }}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- endif -%}
         </div>
 
       {%- endform -%}
@@ -1099,6 +1111,38 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+.pinfo__payments {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+}
+.pinfo__payments-label {
+  color: var(--color-gray-500);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.2;
+}
+.pinfo__payments-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pinfo__payment {
+  display: inline-flex;
+  line-height: 0;
+}
+.pinfo__payment-icon {
+  display: block;
+  width: 42px;
+  height: auto;
+  border-radius: 3px;
+  overflow: hidden;
+}
 
 /* Accordéons */
 .pinfo__accordions {
@@ -1314,6 +1358,18 @@
   .pinfo__buttons {
     position: relative;
     grid-template-columns: 1fr;
+  }
+
+  .pinfo__payments {
+    justify-items: flex-start;
+  }
+
+  .pinfo__payments-list {
+    justify-content: flex-start;
+  }
+
+  .pinfo__payment-icon {
+    width: 38px;
   }
 
   .pinfo__buttons::before {
