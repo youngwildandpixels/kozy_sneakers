@@ -136,7 +136,7 @@
   font-weight: var(--font-weight-bold);
   color: var(--color-white);
   line-height: 1;
-  letter-spacing: -0.5px;
+  letter-spacing: 0;
   margin: 0;
 }
 
@@ -165,20 +165,21 @@
   opacity: 1;
 }
 
-/* Mobile — empilés verticalement */
+/* Mobile — 1 grande carte puis 2 cartes côte à côte */
 @media (max-width: 768px) {
   .brand-banners__grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto auto;
     height: auto;
+    min-height: 0;
   }
 
   .brand-banners__grid:has(.brand-banner:hover) {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .brand-banner--0 {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 1;
   }
   .brand-banner--1 {
@@ -194,6 +195,11 @@
     aspect-ratio: 4 / 3;
   }
 
+  .brand-banner--1 .brand-banner__media,
+  .brand-banner--2 .brand-banner__media {
+    aspect-ratio: 1 / 1.12;
+  }
+
   .brand-banner__content {
     top: 50%;
     left: 50%;
@@ -204,7 +210,13 @@
 
   .brand-banner__name { font-size: 32px; }
   .brand-banner--1 .brand-banner__name,
-  .brand-banner--2 .brand-banner__name { font-size: 32px; }
+  .brand-banner--2 .brand-banner__name { font-size: 22px; }
+
+  .brand-banner--1 .brand-banner__cta,
+  .brand-banner--2 .brand-banner__cta {
+    font-size: 10px;
+    padding: 7px 14px;
+  }
 }
 {% endstylesheet %}
 
