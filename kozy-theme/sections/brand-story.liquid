@@ -61,14 +61,15 @@
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-16);
-  align-items: center;
+  grid-template-areas: "media text";
+  gap: 0;
+  align-items: stretch;
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
-  padding: var(--space-12);
-  background: var(--color-black);
-  color: var(--color-white);
+  padding: 0;
+  background: var(--color-gray-100);
+  color: var(--color-black);
 }
 
 .brand-story__status {
@@ -128,41 +129,54 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--color-gray-300);
+  color: var(--color-gray-500);
   margin-bottom: var(--space-3);
+}
+
+.brand-story__text {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: clamp(var(--space-8), 7vw, var(--space-16));
+  background: var(--color-gray-100);
 }
 
 .brand-story__title {
   font-size: var(--font-size-display);
   font-weight: var(--font-weight-bold);
   line-height: 1.0;
-  letter-spacing: -1px;
+  letter-spacing: 0;
   margin-bottom: var(--space-6);
+  color: var(--color-black);
 }
 
 .brand-story__body {
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-light);
-  color: var(--color-white);
+  color: var(--color-gray-600);
   line-height: 1.3;
   margin-bottom: var(--space-8);
 }
 
 .brand-story__cta {
-  background: var(--color-white);
-  color: var(--color-black);
-  border-color: var(--color-white);
+  align-self: flex-start;
+  background: var(--color-black);
+  color: var(--color-white);
+  border-color: var(--color-black);
 }
 
 .brand-story__cta:hover {
-  background: transparent;
-  color: var(--color-white);
+  background: var(--color-white);
+  color: var(--color-black);
   opacity: 1;
 }
 
 .brand-story__media {
+  grid-area: media;
   position: relative;
-  aspect-ratio: 4 / 5;
+  min-height: 520px;
   overflow: hidden;
   background: var(--color-gray-100);
 }
@@ -200,9 +214,10 @@
   .brand-story { padding: var(--space-12) 0; }
   .brand-story__inner {
     grid-template-columns: 1fr;
-    gap: var(--space-8);
-    padding: var(--space-6);
-    padding-top: calc(var(--space-6) + 68px);
+    grid-template-areas:
+      "media"
+      "text";
+    padding: 0;
   }
   .brand-story__status {
     top: var(--space-5);
@@ -210,8 +225,14 @@
     right: var(--space-5);
     max-width: none;
   }
+  .brand-story__text {
+    padding: var(--space-8) var(--space-6);
+  }
   .brand-story__title { font-size: var(--font-size-h1); }
-  .brand-story__media { order: -1; }
+  .brand-story__media {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
 }
 {% endstylesheet %}
 
