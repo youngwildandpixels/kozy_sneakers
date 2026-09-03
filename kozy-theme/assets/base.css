@@ -221,6 +221,10 @@ a:hover { opacity: 0.6; }
   margin-top: 0;
 }
 
+.template-index main > .shopify-section + .shopify-section:has(.trust-bar) {
+  margin-top: 0;
+}
+
 .template-index main > .shopify-section:has(.reassurance-marquee) + .shopify-section {
   margin-top: 0;
 }
